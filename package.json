@@ -1,0 +1,27 @@
+{
+  "name": "com.halfhumangames.ui",
+  "version": "1.0.0",
+  "displayName": "HHG - UI",
+  "description": "A simple message system for Unity",
+  "unity": "2020.3",
+  "unityRelease": "6f1",
+  "documentationUrl": "https://github.com/HalfHumanGames/UI/blob/main/README.md",
+  "changelogUrl": "https://github.com/HalfHumanGames/UI/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/HalfHumanGames/UI/blob/main/LICENSE",
+  "keywords": [
+    "UI",
+    "User interface",
+    "menu",
+    "screen"
+  ],
+  "author": {
+    "name": "Half Human Games",
+    "email": "contact@halfhumangames.com",
+    "url": "https://halfhumangames.com/"
+  },
+  "type": "library",
+  "dependencies": {
+    "com.halfhumangames.common": "1.0.0",
+    "com.unity.textmeshpro": "3.0.6"
+  }
+}
