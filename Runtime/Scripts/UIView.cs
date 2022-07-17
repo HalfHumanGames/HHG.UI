@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace HHG.UI
 { 
+    [RequireComponent(typeof(CanvasGroup))]
     public class UIView : UIElement
     {
+        public Selectable SelectOnFocus;
+
         protected override void Awake()
         {
             base.Awake();
@@ -14,6 +18,19 @@ namespace HHG.UI
         {
             base.Start();
             InitializeState();
+        }
+
+        protected override void OnFocus()
+        {
+            base.OnFocus();
+            CanvasGroup.interactable = true;
+            if (SelectOnFocus != null) SelectOnFocus.Select();
+        }
+
+        protected override void OnUnfocus()
+        {
+            base.OnUnfocus();
+            CanvasGroup.interactable = false;
         }
 
         internal override void InitializeState()

@@ -41,7 +41,6 @@ namespace HHG.UI
         }
 
         [SerializeField, FormerlySerializedAs("InitialState")] protected OpenState state;
-        public Selectable SelectOnOpen;
         public Callbacks Events;
 
         public virtual object Id { get; } = null;
@@ -227,8 +226,8 @@ namespace HHG.UI
             }
             else
             {
-               Animator.ResetTrigger("Open");
-               Animator.SetTrigger("Close");
+                Animator.ResetTrigger("Open");
+                Animator.SetTrigger("Close");
                 yield return new WaitForAnimatorState(Animator, "Close", 1);
             }
         }
