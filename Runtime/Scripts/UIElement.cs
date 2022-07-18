@@ -130,13 +130,14 @@ namespace HHG.UI
 
         private IEnumerator WaitForAnimationToFinish(IEnumerator coroutine)
         {
+            bool wasInteractive = CanvasGroup.interactable;
             CanvasGroup.interactable = false;
             while (IsTransitioning)
             {
                yield return new WaitForEndOfFrame();
             }
             yield return coroutine;
-            CanvasGroup.interactable = true;
+            CanvasGroup.interactable = wasInteractive;
         }
 
         private IEnumerator OpenCoroutine(bool instant = false)
