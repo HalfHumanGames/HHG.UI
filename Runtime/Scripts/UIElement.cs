@@ -96,8 +96,8 @@ namespace HHG.UI
             AnimatorOverrideController controller = (AnimatorOverrideController)Animator.runtimeAnimatorController;
             hasCloseAnimation = controller["UI Close"].name != "UI Close";
             Animator.SetBool("HasClose", hasCloseAnimation);
-            hasUnfocusAnimation = controller["UI Unfocus"].name != "UI Unfocus";
-            Animator.SetBool("HasUnfocus", hasUnfocusAnimation);
+            //hasUnfocusAnimation = controller["UI Unfocus"].name != "UI Unfocus";
+            //Animator.SetBool("HasUnfocus", hasUnfocusAnimation);
         }
 
         protected virtual void Start()
