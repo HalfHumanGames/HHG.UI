@@ -136,8 +136,8 @@ namespace HHG.UI
             {
                yield return new WaitForEndOfFrame();
             }
-            yield return coroutine;
             CanvasGroup.interactable = wasInteractive;
+            yield return coroutine;
         }
 
         private IEnumerator OpenCoroutine(bool instant = false)
