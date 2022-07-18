@@ -7,7 +7,6 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 namespace HHG.UI
 {
@@ -49,6 +48,7 @@ namespace HHG.UI
         public OpenState CurrentState { get => state; private set => state = value; }
         public FocusState CurrentFocus { get => focus; private set => focus = value; }
         public OpenState FormerState { get; private set; }
+        public FocusState FormerFocus { get; private set; }
         public bool IsOpen => CurrentState == OpenState.Open;
         public bool IsOpening => CurrentState == OpenState.Opening;
         public bool IsClosed => CurrentState == OpenState.Closed;
@@ -59,6 +59,8 @@ namespace HHG.UI
         public bool IsUnfocusing => CurrentFocus == FocusState.Unfocusing;
         public bool WasOpen { get => FormerState == OpenState.Open; set => FormerState = value ? OpenState.Open : OpenState.Closed; }
         public bool WasClosed { get => FormerState == OpenState.Closed; set => FormerState = value ? OpenState.Closed : OpenState.Open; }
+        public bool WasFocused { get => FormerFocus == FocusState.Focused; set => FormerFocus = value ? FocusState.Focused : FocusState.Unfocused; }
+        public bool WasUnfocused { get => FormerFocus == FocusState.Unfocused; set => FormerFocus = value ? FocusState.Unfocused : FocusState.Focused; }
         public bool IsTransitioning => IsOpening || IsClosing || IsFocusing || IsUnfocusing;
         public RectTransform RectTransform { get; private set; }
         public Animator Animator { get; private set; }
@@ -69,6 +71,7 @@ namespace HHG.UI
 
         protected List<UIElement> children { get; private set; }  = new List<UIElement>();
         protected bool hasCloseAnimation { get; private set; }
+        protected bool hasUnfocusAnimation { get; private set; }
 
         protected virtual void OnOpen() { }
         protected virtual void OnClose() { }
@@ -93,6 +96,8 @@ namespace HHG.UI
             AnimatorOverrideController controller = (AnimatorOverrideController)Animator.runtimeAnimatorController;
             hasCloseAnimation = controller["UI Close"].name != "UI Close";
             Animator.SetBool("HasClose", hasCloseAnimation);
+            hasUnfocusAnimation = controller["UI Unfocus"].name != "UI Unfocus";
+            Animator.SetBool("HasUnfocus", hasUnfocusAnimation);
         }
 
         protected virtual void Start()
@@ -236,19 +241,106 @@ namespace HHG.UI
         private IEnumerator FocusCoroutine(bool instant = false)
         {
             CurrentFocus = FocusState.Focusing;
-            yield return null;
+            yield return FocusSelf(instant);
+            yield return FocusChildren(instant);
             CurrentFocus = FocusState.Focused;
             OnFocus();
             Events.Focused.Invoke();
         }
 
+        private IEnumerator FocusSelf(bool instant)
+        {
+            // Temp
+            yield break;
+
+            if (instant)
+            {
+                Animator.ResetTrigger("Focus");
+                Animator.ResetTrigger("Unfocus");
+                Animator.Play("Focus", -1, 1);
+            }
+            else
+            {
+                Animator.ResetTrigger("Unfocus");
+                Animator.SetTrigger("Focus");
+                yield return new WaitForAnimatorState(Animator, "Idle", 0);
+            }
+        }
+
+        private IEnumerator FocusChildren(bool instant)
+        {
+            List<UIElement> watch = new List<UIElement>();
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i].WasFocused)
+                {
+                    children[i].Focus(instant);
+                    watch.Add(children[i]);
+                }
+            }
+            while (watch.Count > 0 && watch.Any(child => child.IsFocusing))
+            {
+                yield return new WaitForEndOfFrame();
+            }
+        }
+
         private IEnumerator UnfocusCoroutine(bool instant = false)
         {
             CurrentFocus = FocusState.Unfocusing;
-            yield return null;
+            yield return UnfocusSelf(instant);
+            yield return UnfocusChildren(instant);
             CurrentFocus = FocusState.Unfocused;
             OnUnfocus();
             Events.Unfocused.Invoke();
+        }
+
+        private IEnumerator UnfocusSelf(bool instant)
+        {
+            // Temp
+            yield break;
+
+            if (instant)
+            {
+                if (hasUnfocusAnimation)
+                {
+                    Animator.ResetTrigger("Focus");
+                    Animator.ResetTrigger("Unfocus");
+                    Animator.Play("Unfocus", 0, 1);
+                }
+                else
+                {
+                    Animator.Play("Unfocus (Reverse Focus)", 0, 1);
+                }
+            }
+            else
+            {
+                Animator.ResetTrigger("Focus");
+                Animator.SetTrigger("Unfocus");
+                yield return new WaitForAnimatorState(Animator, "Unfocus", 1);
+            }
+        }
+
+        private IEnumerator UnfocusChildren(bool instant)
+        {
+            List<UIElement> watch = new List<UIElement>();
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i].IsFocused || children[i].IsFocusing)
+                {
+                    children[i].WasFocused = true;
+                    children[i].Unfocus(instant);
+                    watch.Add(children[i]);
+                }
+                else
+                {
+                    children[i].WasFocused = true;
+                    children[i].Unfocus(true);
+                }
+            }
+            while (watch.Count > 0 && watch.Any(child => child.IsUnfocusing))
+            {
+                yield return new WaitForEndOfFrame();
+            }
         }
     }
 }
