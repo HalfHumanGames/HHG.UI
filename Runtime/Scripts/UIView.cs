@@ -57,5 +57,25 @@ namespace HHG.UI
                     break;
             }
         }
+
+        public void GoTo(bool instant = false)
+        {
+            UI.GoTo(GetType(), null, instant);
+        }
+
+        public void Push(bool instant = false)
+        {
+            UI.Push(GetType(), null, instant);
+        }
+
+        public void Clear(bool instant = false)
+        {
+            UI.Clear(instant);
+        }
+
+        public void Swap(bool instant = false)
+        {
+            UI.Swap(GetType(), null, instant);
+        }
     }
 }
