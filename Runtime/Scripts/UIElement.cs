@@ -41,12 +41,13 @@ namespace HHG.UI
         }
 
         [SerializeField, FormerlySerializedAs("InitialState")] protected OpenState state;
+        [SerializeField] protected FocusState focus;
         public Callbacks Events;
 
         public virtual object Id { get; } = null;
         public SubjectId ViewId => new SubjectId(GetType(), Id);
         public OpenState CurrentState { get => state; private set => state = value; }
-        public FocusState CurrentFocus { get; private set; }
+        public FocusState CurrentFocus { get => focus; private set => focus = value; }
         public OpenState FormerState { get; private set; }
         public bool IsOpen => CurrentState == OpenState.Open;
         public bool IsOpening => CurrentState == OpenState.Opening;

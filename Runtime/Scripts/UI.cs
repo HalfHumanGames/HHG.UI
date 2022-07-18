@@ -22,14 +22,18 @@ namespace HHG.UI
         public static Coroutine Swap<T>(object id = null, bool instant = false) where T : UIView => instance.SwapInternal(typeof(T), id, instant);
         public static Coroutine Swap(Type type, object id = null, bool instant = false) => instance.SwapInternal(type, id, instant);
 
-        private Dictionary<SubjectId, UIView> views;
+        private Dictionary<SubjectId, UIView> views = new Dictionary<SubjectId, UIView>();
         private Stack<UIView> opened = new Stack<UIView>();
 
         private void Awake()
         {
             instance = this;
-            UIView[] children = GetComponentsInChildren<UIView>();
-            views = children.ToDictionary(x => x.ViewId, x => x);
+            
+            foreach (Transform child in transform)
+            {
+                UIView view = child.GetComponent<UIView>();
+                views.Add(view.ViewId, view);
+            }
         }
 
         private Coroutine GoToInternal(Type type, object id = null, bool instant = false) => StartCoroutine(GoToCoroutine(type, id, instant));
