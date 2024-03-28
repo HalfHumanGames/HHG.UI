@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using HHG.UISystem.Runtime;
 
-namespace HHG.UI.Sample
+namespace HHG.UISystem.Sample
 {
     [RequireComponent(typeof(Button))]
     public class MenuButton : MonoBehaviour
@@ -22,19 +23,19 @@ namespace HHG.UI.Sample
             switch (Action)
             {
                 case MenuAction.GoTo:
-                    UI.GoTo<Menu>(Type);
+                    Runtime.UI.GoTo<Menu>(Type);
                     break;
                 case MenuAction.Push:
-                    UI.Push<Menu>(Type);
+                    Runtime.UI.Push<Menu>(Type);
                     break;
                 case MenuAction.Pop:
-                    UI.Pop();
+                    Runtime.UI.Pop();
                     break;
                 case MenuAction.Clear:
-                    UI.Clear();
+                    Runtime.UI.Clear();
                     break;
                 case MenuAction.Swap:
-                    UI.Swap<Menu>(Type);
+                    Runtime.UI.Swap<Menu>(Type);
                     break;
             }
         }

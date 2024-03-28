@@ -1,4 +1,4 @@
-﻿namespace HHG.UI.Sample
+﻿namespace HHG.UISystem.Sample
 {
     public enum MenuType
     {

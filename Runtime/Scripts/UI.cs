@@ -1,13 +1,12 @@
-﻿using HHG.Common;
+﻿using HHG.Common.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-namespace HHG.UI
+namespace HHG.UISystem.Runtime
 {
-    public partial class UI : MonoBehaviour
+    public class UI : MonoBehaviour
     {
         private static UI instance;
 
@@ -21,6 +20,8 @@ namespace HHG.UI
         public static Coroutine Clear(bool instant = false) => instance.ClearInternal(instant);
         public static Coroutine Swap<T>(object id = null, bool instant = false) where T : UIView => instance.SwapInternal(typeof(T), id, instant);
         public static Coroutine Swap(Type type, object id = null, bool instant = false) => instance.SwapInternal(type, id, instant);
+
+        public bool Debug;
 
         private Dictionary<SubjectId, UIView> views = new Dictionary<SubjectId, UIView>();
         private Stack<UIView> opened = new Stack<UIView>();
@@ -43,6 +44,7 @@ namespace HHG.UI
         private Coroutine ClearInternal(bool instant = false) => StartCoroutine(ClearCoroutine(instant));
         private Coroutine SwapInternal(Type type, object id = null, bool instant = false) => StartCoroutine(SwapCoroutine(type, id, instant));
 
+        // TODO - Need to not focus when popping deeper
         private IEnumerator GoToCoroutine(Type type, object id = null, bool instant = false)
         {
             SubjectId key = new SubjectId(type, id);

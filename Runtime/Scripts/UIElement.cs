@@ -1,4 +1,4 @@
-﻿using HHG.Common;
+﻿using HHG.Common.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-namespace HHG.UI
+namespace HHG.UISystem.Runtime
 {
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(CanvasGroup))]
@@ -59,8 +59,8 @@ namespace HHG.UI
         public bool IsUnfocusing => CurrentFocus == FocusState.Unfocusing;
         public bool WasOpen { get => FormerState == OpenState.Open; set => FormerState = value ? OpenState.Open : OpenState.Closed; }
         public bool WasClosed { get => FormerState == OpenState.Closed; set => FormerState = value ? OpenState.Closed : OpenState.Open; }
-        public bool WasFocused { get => FormerFocus == FocusState.Focused; set => FormerFocus = value ? FocusState.Focused : FocusState.Unfocused; }
-        public bool WasUnfocused { get => FormerFocus == FocusState.Unfocused; set => FormerFocus = value ? FocusState.Unfocused : FocusState.Focused; }
+        public bool WasFocused { get => WasOpen && FormerFocus == FocusState.Focused; set => FormerFocus = value ? FocusState.Focused : FocusState.Unfocused; }
+        public bool WasUnfocused { get => WasOpen && FormerFocus == FocusState.Unfocused; set => FormerFocus = value ? FocusState.Unfocused : FocusState.Focused; }
         public bool IsTransitioning => IsOpening || IsClosing || IsFocusing || IsUnfocusing;
         public RectTransform RectTransform { get; private set; }
         public Animator Animator { get; private set; }
@@ -96,8 +96,8 @@ namespace HHG.UI
             AnimatorOverrideController controller = (AnimatorOverrideController)Animator.runtimeAnimatorController;
             hasCloseAnimation = controller["UI Close"].name != "UI Close";
             Animator.SetBool("HasClose", hasCloseAnimation);
-            //hasUnfocusAnimation = controller["UI Unfocus"].name != "UI Unfocus";
-            //Animator.SetBool("HasUnfocus", hasUnfocusAnimation);
+            hasUnfocusAnimation = controller["UI Unfocus"].name != "UI Unfocus";
+            Animator.SetBool("HasUnfocus", hasUnfocusAnimation);
         }
 
         protected virtual void Start()
@@ -109,6 +109,15 @@ namespace HHG.UI
         {
             WasOpen = IsOpen || IsOpening;
             state = IsOpen || IsOpening ? OpenState.Open : OpenState.Closed;
+            if ((IsOpen || IsOpening) && (Parent.IsOpen || Parent.IsOpening)) {
+                state = OpenState.Closed;
+                focus = FocusState.Unfocused;
+                Open(true);
+            } else {
+                state = OpenState.Open;
+                focus = FocusState.Unfocused;
+                Close(true);
+            }
         }
 
         public void Toggle() => Toggle(false);
@@ -130,18 +139,18 @@ namespace HHG.UI
 
         private IEnumerator WaitForAnimationToFinish(IEnumerator coroutine)
         {
-            bool wasInteractive = CanvasGroup.interactable;
             CanvasGroup.interactable = false;
             while (IsTransitioning)
             {
                yield return new WaitForEndOfFrame();
             }
-            CanvasGroup.interactable = wasInteractive;
             yield return coroutine;
+            CanvasGroup.interactable = IsOpen && IsFocused;
         }
 
         private IEnumerator OpenCoroutine(bool instant = false)
         {
+            if (IsOpen) yield break;
             CurrentState = OpenState.Opening;
             yield return OpenSelf(instant);
             yield return OpenChildren(instant);
@@ -156,13 +165,13 @@ namespace HHG.UI
             {
                 Animator.ResetTrigger("Open");
                 Animator.ResetTrigger("Close");
-                Animator.Play("Open", -1, 1);
+                Animator.Play("Unfocused", -1, 1);
             }
             else
             {
                 Animator.ResetTrigger("Close");
                 Animator.SetTrigger("Open");
-                yield return new WaitForAnimatorState(Animator, "Idle", 0);
+                yield return new WaitForAnimatorState(Animator, "Unfocused", 0);
             }
         }
 
@@ -185,6 +194,7 @@ namespace HHG.UI
 
         private IEnumerator CloseCoroutine(bool instant = false)
         {
+            if (IsClosed) yield break;
             CurrentState = OpenState.Closing;
             yield return CloseChildren(instant);
             yield return CloseSelf(instant);
@@ -233,6 +243,12 @@ namespace HHG.UI
             }
             else
             {
+                if (IsFocusing || IsFocused)
+                {
+                    Animator.ResetTrigger("Focus");
+                    Animator.SetTrigger("Unfocus");
+                    yield return new WaitForAnimatorState(Animator, "Unfocused", 1);
+                }
                 Animator.ResetTrigger("Open");
                 Animator.SetTrigger("Close");
                 yield return new WaitForAnimatorState(Animator, "Close", 1);
@@ -241,6 +257,7 @@ namespace HHG.UI
 
         private IEnumerator FocusCoroutine(bool instant = false)
         {
+            if (IsClosed || IsFocused) yield break;
             CurrentFocus = FocusState.Focusing;
             yield return FocusSelf(instant);
             yield return FocusChildren(instant);
@@ -251,9 +268,6 @@ namespace HHG.UI
 
         private IEnumerator FocusSelf(bool instant)
         {
-            // Temp
-            yield break;
-
             if (instant)
             {
                 Animator.ResetTrigger("Focus");
@@ -264,7 +278,7 @@ namespace HHG.UI
             {
                 Animator.ResetTrigger("Unfocus");
                 Animator.SetTrigger("Focus");
-                yield return new WaitForAnimatorState(Animator, "Idle", 0);
+                yield return new WaitForAnimatorState(Animator, "Focused", 0);
             }
         }
 
@@ -287,6 +301,7 @@ namespace HHG.UI
 
         private IEnumerator UnfocusCoroutine(bool instant = false)
         {
+            if (IsClosed || IsUnfocused) yield break;
             CurrentFocus = FocusState.Unfocusing;
             yield return UnfocusSelf(instant);
             yield return UnfocusChildren(instant);
@@ -297,9 +312,6 @@ namespace HHG.UI
 
         private IEnumerator UnfocusSelf(bool instant)
         {
-            // Temp
-            yield break;
-
             if (instant)
             {
                 if (hasUnfocusAnimation)
@@ -317,7 +329,7 @@ namespace HHG.UI
             {
                 Animator.ResetTrigger("Focus");
                 Animator.SetTrigger("Unfocus");
-                yield return new WaitForAnimatorState(Animator, "Unfocus", 1);
+                yield return new WaitForAnimatorState(Animator, "Unfocused", 1);
             }
         }
 

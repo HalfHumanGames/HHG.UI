@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace HHG.UI
+namespace HHG.UISystem.Runtime
 { 
-    [RequireComponent(typeof(CanvasGroup))]
     public class UIView : UIElement
     {
         public Selectable SelectOnFocus;
@@ -38,23 +37,29 @@ namespace HHG.UI
             children.ForEach(child => child.InitializeState());
             switch (state)
             {
+                case OpenState.Closing:
                 case OpenState.Closed:
+                    state = OpenState.Open;
+                    focus = FocusState.Unfocused;
                     Close(true);
                     break;
                 case OpenState.Opening:
-                    state = OpenState.Open;
-                    Close(true);
-                    UI.Push(GetType(), Id);
-                    break;
                 case OpenState.Open:
-                    Close(true);
-                    UI.Push(GetType(), Id, true);
-                    break;
-                case OpenState.Closing:
+                    //state = OpenState.Open;
+                    //Close(true);
                     state = OpenState.Closed;
-                    Open(true);
-                    Close(false);
+                    focus = FocusState.Unfocused;
+                    UI.Push(GetType(), base.Id, true);
                     break;
+                //case OpenState.Open:
+                //    Close(true);
+                //    UI.Push(GetType(), Id, true);
+                //    break;
+                //case OpenState.Closing:
+                //    state = OpenState.Closed;
+                //    Open(true);
+                //    Close(false);
+                //    break;
             }
         }
 

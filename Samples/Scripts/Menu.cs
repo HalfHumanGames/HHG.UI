@@ -1,6 +1,7 @@
-﻿using TMPro;
+﻿using HHG.UISystem.Runtime;
+using TMPro;
 
-namespace HHG.UI.Sample
+namespace HHG.UISystem.Sample
 {
     public class Menu : UIView
     {
