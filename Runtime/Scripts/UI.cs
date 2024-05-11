@@ -10,7 +10,7 @@ namespace HHG.UISystem.Runtime
     {
         private static UI instance;
 
-        public static UIView Current => instance.opened.Peek();
+        public static UIView Current => instance.opened.Count > 0 ? instance.opened.Peek() : null;
         public static Coroutine GoTo<T>(object id = null, bool instant = false) where T : UIView => instance.GoToInternal(typeof(T), id, instant);
         public static Coroutine GoTo(Type type, object id = null, bool instant = false) => instance.GoToInternal(type, id, instant);
         public static Coroutine Push<T>(object id = null, bool instant = false) where T : UIView => instance.PushInternal(typeof(T), id, instant);
@@ -30,9 +30,8 @@ namespace HHG.UISystem.Runtime
         {
             instance = this;
             
-            foreach (Transform child in transform)
+            foreach (UIView view in FindObjectsOfType<UIView>())
             {
-                UIView view = child.GetComponent<UIView>();
                 views.Add(view.ViewId, view);
             }
         }

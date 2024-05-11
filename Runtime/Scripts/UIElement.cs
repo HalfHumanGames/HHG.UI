@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -93,11 +94,14 @@ namespace HHG.UISystem.Runtime
             {
                 Animator = GetComponent<Animator>();
             }
-            AnimatorOverrideController controller = (AnimatorOverrideController)Animator.runtimeAnimatorController;
-            hasCloseAnimation = controller["UI Close"].name != "UI Close";
-            Animator.SetBool("HasClose", hasCloseAnimation);
-            hasUnfocusAnimation = controller["UI Unfocus"].name != "UI Unfocus";
-            Animator.SetBool("HasUnfocus", hasUnfocusAnimation);
+            if (Animator.runtimeAnimatorController is AnimatorOverrideController controller)
+            {
+                hasCloseAnimation = controller["UI Close"].name != "UI Close";
+                Animator.SetBool("HasClose", hasCloseAnimation);
+                hasUnfocusAnimation = controller["UI Unfocus"].name != "UI Unfocus";
+                Animator.SetBool("HasUnfocus", hasUnfocusAnimation);
+            }
+            Animator.updateMode = AnimatorUpdateMode.UnscaledTime;
         }
 
         protected virtual void Start()
@@ -142,7 +146,7 @@ namespace HHG.UISystem.Runtime
             CanvasGroup.interactable = false;
             while (IsTransitioning)
             {
-               yield return new WaitForEndOfFrame();
+                yield return new WaitForEndOfFrame();
             }
             yield return coroutine;
             CanvasGroup.interactable = IsOpen && IsFocused;
@@ -165,13 +169,13 @@ namespace HHG.UISystem.Runtime
             {
                 Animator.ResetTrigger("Open");
                 Animator.ResetTrigger("Close");
-                Animator.Play("Unfocused", -1, 1);
+                Animator.Play("Unfocused", -1, 1f);
             }
             else
             {
                 Animator.ResetTrigger("Close");
                 Animator.SetTrigger("Open");
-                yield return new WaitForAnimatorState(Animator, "Unfocused", 0);
+                yield return new WaitForAnimatorState(Animator, "Unfocused", 0f);
             }
         }
 
@@ -199,6 +203,7 @@ namespace HHG.UISystem.Runtime
             yield return CloseChildren(instant);
             yield return CloseSelf(instant);
             CurrentState = OpenState.Closed;
+            ResetAllTriggers();
             OnClose();
             Events.Closed.Invoke();
         }
@@ -234,11 +239,11 @@ namespace HHG.UISystem.Runtime
                 {
                     Animator.ResetTrigger("Open");
                     Animator.ResetTrigger("Close");
-                    Animator.Play("Close", 0, 1);
+                    Animator.Play("Close", 0, 1f);
                 }
                 else
                 {
-                   Animator.Play("Close (Reverse Open)", 0, 1);
+                   Animator.Play("Close (Reverse Open)", 0, 1f);
                 }
             }
             else
@@ -247,11 +252,11 @@ namespace HHG.UISystem.Runtime
                 {
                     Animator.ResetTrigger("Focus");
                     Animator.SetTrigger("Unfocus");
-                    yield return new WaitForAnimatorState(Animator, "Unfocused", 1);
+                    yield return new WaitForAnimatorState(Animator, "Unfocused", 1f);
                 }
                 Animator.ResetTrigger("Open");
                 Animator.SetTrigger("Close");
-                yield return new WaitForAnimatorState(Animator, "Close", 1);
+                yield return new WaitForAnimatorState(Animator, "Close", 1f);
             }
         }
 
@@ -262,6 +267,7 @@ namespace HHG.UISystem.Runtime
             yield return FocusSelf(instant);
             yield return FocusChildren(instant);
             CurrentFocus = FocusState.Focused;
+            ResetAllTriggers();
             OnFocus();
             Events.Focused.Invoke();
         }
@@ -272,13 +278,13 @@ namespace HHG.UISystem.Runtime
             {
                 Animator.ResetTrigger("Focus");
                 Animator.ResetTrigger("Unfocus");
-                Animator.Play("Focus", -1, 1);
+                Animator.Play("Focus", 0, 1f);
             }
             else
             {
                 Animator.ResetTrigger("Unfocus");
                 Animator.SetTrigger("Focus");
-                yield return new WaitForAnimatorState(Animator, "Focused", 0);
+                yield return new WaitForAnimatorState(Animator, "Focused", 0f);
             }
         }
 
@@ -318,18 +324,18 @@ namespace HHG.UISystem.Runtime
                 {
                     Animator.ResetTrigger("Focus");
                     Animator.ResetTrigger("Unfocus");
-                    Animator.Play("Unfocus", 0, 1);
+                    Animator.Play("Unfocus", 0, 1f);
                 }
                 else
                 {
-                    Animator.Play("Unfocus (Reverse Focus)", 0, 1);
+                    Animator.Play("Unfocus (Reverse Focus)", 0, 1f);
                 }
             }
             else
             {
                 Animator.ResetTrigger("Focus");
                 Animator.SetTrigger("Unfocus");
-                yield return new WaitForAnimatorState(Animator, "Unfocused", 1);
+                yield return new WaitForAnimatorState(Animator, "Unfocused", 1f);
             }
         }
 
@@ -354,6 +360,14 @@ namespace HHG.UISystem.Runtime
             {
                 yield return new WaitForEndOfFrame();
             }
+        }
+
+        private void ResetAllTriggers()
+        {
+            Animator.ResetTrigger("Open");
+            Animator.ResetTrigger("Close");
+            Animator.ResetTrigger("Focus");
+            Animator.ResetTrigger("Unfocus");
         }
     }
 }
