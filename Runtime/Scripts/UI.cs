@@ -68,6 +68,11 @@ namespace HHG.UISystem.Runtime
                 }
 
                 UIView view = views[key];
+
+                // Horizontal/vertical layouts may not update for some reason
+                // So we force rebuild the layout each time we open a view
+                view.RebuildLayout();
+
                 opened.Push(view);
                 yield return view.Open(instant);
                 yield return view.Focus(instant);

@@ -82,5 +82,10 @@ namespace HHG.UISystem.Runtime
         {
             UI.Swap(GetType(), null, instant);
         }
+
+        public void RebuildLayout()
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(RectTransform);
+        }
     }
 }

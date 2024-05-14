@@ -10,7 +10,7 @@ namespace HHG.UISystem.Runtime
 
         private void OnValidate()
         {
-            value = view?.GetComponent<UIView>()?.GetType().FullName; 
+            value = view?.GetComponent<UIView>()?.GetType().AssemblyQualifiedName; 
         }
     }
 }

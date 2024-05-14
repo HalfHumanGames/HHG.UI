@@ -1,6 +1,5 @@
 using HHG.Common.Runtime;
 using System;
-using UnityEditor;
 using UnityEngine;
 
 namespace HHG.UISystem.Runtime
@@ -17,11 +16,11 @@ namespace HHG.UISystem.Runtime
         }
 
         [SerializeField] private Action action;
-        [SerializeField] private ViewNameAsset view;
+        [SerializeField, Dropdown] private ViewNameAsset view;
 
         public void DoAction(MonoBehaviour invoker)
         {
-            Type type = Type.GetType(view);
+            Type type = Type.GetType(view.Value);
             switch (action)
             {
                 case Action.GoTo:
