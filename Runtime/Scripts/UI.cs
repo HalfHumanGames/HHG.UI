@@ -11,6 +11,8 @@ namespace HHG.UISystem.Runtime
         private static UI instance;
 
         public static UIView Current => instance.opened.Count > 0 ? instance.opened.Peek() : null;
+        public static void Refresh<T>(object model, object id = null) where T : UIView => instance.RefreshInternal(typeof(T), model, id);
+        public static void Refresh(Type type, object model, object id = null) => instance.RefreshInternal(type, model, id);
         public static Coroutine GoTo<T>(object id = null, bool instant = false) where T : UIView => instance.GoToInternal(typeof(T), id, instant);
         public static Coroutine GoTo(Type type, object id = null, bool instant = false) => instance.GoToInternal(type, id, instant);
         public static Coroutine Push<T>(object id = null, bool instant = false) where T : UIView => instance.PushInternal(typeof(T), id, instant);
@@ -29,10 +31,20 @@ namespace HHG.UISystem.Runtime
         private void Awake()
         {
             instance = this;
-            
+
             foreach (UIView view in FindObjectsOfType<UIView>())
             {
                 views.Add(view.ViewId, view);
+            }
+        }
+
+        private void RefreshInternal(Type type, object model, object id = null)
+        {
+            SubjectId key = new SubjectId(type, id);
+
+            if (views.TryGetValue(key, out UIView view) && view is UIViewT viewBase)
+            {
+                viewBase.RefreshWeak(model);
             }
         }
 

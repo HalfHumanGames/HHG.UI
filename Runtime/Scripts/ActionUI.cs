@@ -16,11 +16,17 @@ namespace HHG.UISystem.Runtime
         }
 
         [SerializeField] private Action action;
-        [SerializeField, Dropdown] private ViewNameAsset view;
+        [SerializeField, Dropdown] private ViewAsset view;
 
         public void DoAction(MonoBehaviour invoker)
         {
-            Type type = Type.GetType(view.Value);
+            Type type = view == null ? null : Type.GetType(view.Value);
+
+            if (view is ViewAssetT v)
+            {
+                UI.Refresh(type, v.WeakData);
+            }
+
             switch (action)
             {
                 case Action.GoTo:

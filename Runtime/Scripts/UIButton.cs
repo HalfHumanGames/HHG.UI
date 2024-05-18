@@ -9,6 +9,9 @@ namespace HHG.UISystem.Runtime
     [RequireComponent(typeof(Button))]
     public class UIButton : MonoBehaviour
     {
+        public List<IAction> Actions => actions;
+        public List<IActionAsync> ActionsAsync => actionsAsync;
+
         [SerializeReference, SerializeReferenceDropdown] private List<IAction> actions = new List<IAction>();
         [SerializeReference, SerializeReferenceDropdown] private List<IActionAsync> actionsAsync = new List<IActionAsync>();
 

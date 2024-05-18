@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using HHG.Common.Runtime;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace HHG.UISystem.Runtime
-{ 
+{
     public class UIView : UIElement
     {
         public Selectable SelectOnFocus;
@@ -86,6 +87,24 @@ namespace HHG.UISystem.Runtime
         public void RebuildLayout()
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(RectTransform);
+        }
+    }
+
+    public abstract class UIViewT : UIView
+    {
+        public abstract void RefreshWeak(object data);
+    }
+
+    public class UIView<T> : UIViewT, IRefreshable<T>
+    {
+        public override void RefreshWeak(object model)
+        {
+            Refresh((T) model);
+        }
+
+        public virtual void Refresh(T model)
+        {
+        
         }
     }
 }

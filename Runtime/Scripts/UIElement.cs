@@ -12,7 +12,7 @@ namespace HHG.UISystem.Runtime
 {
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(CanvasGroup))]
-    public class UIElement : MonoBehaviour
+    public class UIElement : MonoBehaviour, IRefreshable
     {
         public enum OpenState
         {
@@ -367,6 +367,19 @@ namespace HHG.UISystem.Runtime
             Animator.ResetTrigger("Close");
             Animator.ResetTrigger("Focus");
             Animator.ResetTrigger("Unfocus");
+        }
+
+        public virtual void Refresh()
+        {
+            
+        }
+    }
+
+    public class UIElement<T> : UIElement, IRefreshable<T>
+    {
+        public virtual void Refresh(T model)
+        {
+            
         }
     }
 }
