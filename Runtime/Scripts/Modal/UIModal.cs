@@ -17,18 +17,15 @@ namespace HHG.UISystem.Runtime
             for (int i = 0; i < buttons.Length; i++)
             {
                 UIButton button = buttons[i];
-                ModalButton modalButton = modal.Buttons[i];
 
                 if (i < modal.Buttons.Length)
                 {
+                    ModalButton modalButton = modal.Buttons[i];
                     button.GetComponentInChildren<TextMeshProUGUI>().text = modal.Buttons[i].Text;
-
                     button.Actions.Clear();
                     button.Actions.AddRange(modalButton.Actions);
-
                     button.ActionsAsync.Clear();
                     button.ActionsAsync.AddRange(modalButton.ActionsAsync);
-
                     button.gameObject.SetActive(true);
                 }
                 else
