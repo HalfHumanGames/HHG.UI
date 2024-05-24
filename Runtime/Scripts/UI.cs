@@ -470,7 +470,7 @@ namespace HHG.UISystem.Runtime
             animator.ResetTrigger("Unfocus");
         }
 
-        private void Destroy()
+        private void OnDestroy()
         {
             map.Remove(SubjectId);
         }
