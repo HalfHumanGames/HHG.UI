@@ -84,7 +84,7 @@ namespace HHG.UISystem.Runtime
                 {
                     refreshable.RefreshWeak(data);
                 }
-                yield return map[key].Open(instant);
+                yield return map[key].OpenInternal(instant);
             }
         }
 
@@ -94,7 +94,7 @@ namespace HHG.UISystem.Runtime
 
             if (map.ContainsKey(key))
             {
-                yield return map[key].Close(instant);
+                yield return map[key].CloseInternal(instant);
             }
         }
 
@@ -104,7 +104,7 @@ namespace HHG.UISystem.Runtime
 
             if (map.ContainsKey(key))
             {
-                yield return map[key].Focus(instant);
+                yield return map[key].FocusInternal(instant);
             }
         }
 
@@ -114,7 +114,7 @@ namespace HHG.UISystem.Runtime
 
             if (map.ContainsKey(key))
             {
-                yield return map[key].Unfocus(instant);
+                yield return map[key].UnfocusInternal(instant);
             }
         }
 
@@ -142,14 +142,14 @@ namespace HHG.UISystem.Runtime
             {
                 if (opened.Count > 0)
                 {
-                    yield return opened.Peek().Unfocus(instant);
+                    yield return opened.Peek().UnfocusInternal(instant);
                 }
 
                 UI ui = map[key];
                 opened.Push(ui);
 
-                yield return ui.Open(instant);
-                yield return ui.Focus(instant);
+                yield return ui.OpenInternal(instant);
+                yield return ui.FocusInternal(instant);
             }
         }
 
@@ -159,12 +159,12 @@ namespace HHG.UISystem.Runtime
             {
                 UI popped = opened.Pop();
 
-                yield return popped.Unfocus(instant);
-                yield return popped.Close(instant);
+                yield return popped.UnfocusInternal(instant);
+                yield return popped.CloseInternal(instant);
 
                 if (opened.Count > 0)
                 {
-                    yield return opened.Peek().Focus(instant);
+                    yield return opened.Peek().FocusInternal(instant);
                 }
             }
         }

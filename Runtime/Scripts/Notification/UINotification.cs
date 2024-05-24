@@ -1,13 +1,14 @@
+using HHG.Common.Runtime;
 using TMPro;
 using UnityEngine;
-using HHG.Common.Runtime;
+using UnityEngine.UI;
 
 namespace HHG.UISystem.Runtime
 {
     public class UINotification : UI<Notification>
     {
         [SerializeField] private TextMeshProUGUI label;
-        [SerializeField] private TextMeshProUGUI background;
+        [SerializeField] private Image background;
 
         public override void Refresh(Notification notification)
         {
@@ -15,7 +16,7 @@ namespace HHG.UISystem.Runtime
             label.color = notification.TextColor;
             background.color = notification.BackgroundColor;
 
-            this.Invoker().After(3f, _ => Close());
+            this.Invoker().AfterRealtime(3f, _ => Close());
         }
     }
 }

@@ -80,18 +80,28 @@ namespace HHG.UISystem.Runtime
         private bool wasFocused { get => wasOpen && previousFocus == FocusState.Focused; set => previousFocus = value ? FocusState.Focused : FocusState.Unfocused; }
         private bool wasUnfocused { get => wasOpen && previousFocus == FocusState.Unfocused; set => previousFocus = value ? FocusState.Unfocused : FocusState.Focused; }
 
-        public void Toggle() => Toggle(false);
-        public void Open() => Open(false);
-        public void Close() => Close(false);
-        public void Focus() => Focus(false);
-        public void Unfocus() => Unfocus(false);
+        [ContextMenu("Open")]
+        public void Open(bool instant = false) => OpenInternal(instant);
+
+        [ContextMenu("Close")]
+        public void Close(bool instant = false) => CloseInternal(instant);
+
+        [ContextMenu("Toggle")]
+        public void Toggle(bool instant = false) => ToggleInternal(instant);
+
+        [ContextMenu("Focus")]
+        public void Focus(bool instant = false) => FocusInternal(instant);
+
+        [ContextMenu("Unfocus")]
+        public void Unfocus(bool instant = false) => UnfocusInternal(instant);
+
         public void RebuildLayout() => LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
 
-        private Coroutine Toggle(bool instant = false) => IsOpen ? Close(instant) : Open(instant);
-        private Coroutine Open(bool instant = false) => Transition(OpenCoroutine(instant));
-        private Coroutine Close(bool instant = false) => Transition(CloseCoroutine(instant));
-        private Coroutine Focus(bool instant = false) => Transition(FocusCoroutine(instant));
-        private Coroutine Unfocus(bool instant = false) => Transition(UnfocusCoroutine(instant));
+        private Coroutine OpenInternal(bool instant = false) => Transition(OpenCoroutine(instant));
+        private Coroutine CloseInternal(bool instant = false) => Transition(CloseCoroutine(instant));
+        private Coroutine ToggleInternal(bool instant = false) => IsOpen ? CloseInternal(instant) : OpenInternal(instant);
+        private Coroutine FocusInternal(bool instant = false) => Transition(FocusCoroutine(instant));
+        private Coroutine UnfocusInternal(bool instant = false) => Transition(UnfocusCoroutine(instant));
 
         private void Awake()
         {
@@ -145,7 +155,7 @@ namespace HHG.UISystem.Runtime
                 case OpenState.Closed:
                     state = OpenState.Open;
                     focus = FocusState.Unfocused;
-                    Close(true);
+                    CloseInternal(true);
                     break;
                 case OpenState.Opening:
                 case OpenState.Open:
@@ -165,13 +175,13 @@ namespace HHG.UISystem.Runtime
             {
                 state = OpenState.Closed;
                 focus = FocusState.Unfocused;
-                Open(true);
+                OpenInternal(true);
             }
             else
             {
                 state = OpenState.Open;
                 focus = FocusState.Unfocused;
-                Close(true);
+                CloseInternal(true);
             }
         }
 
@@ -259,7 +269,7 @@ namespace HHG.UISystem.Runtime
             {
                 if (children[i].wasOpen)
                 {
-                    children[i].Open(instant);
+                    children[i].OpenInternal(instant);
                     watch.Add(children[i]);
                 }
             }
@@ -293,13 +303,13 @@ namespace HHG.UISystem.Runtime
                 if (children[i].IsOpen || children[i].IsOpening)
                 {
                     children[i].wasOpen = true;
-                    children[i].Close(instant);
+                    children[i].CloseInternal(instant);
                     watch.Add(children[i]);
                 }
                 else
                 {
                     children[i].wasClosed = true;
-                    children[i].Close(true);
+                    children[i].CloseInternal(true);
                 }
             }
 
@@ -380,7 +390,7 @@ namespace HHG.UISystem.Runtime
             {
                 if (children[i].wasFocused)
                 {
-                    children[i].Focus(instant);
+                    children[i].FocusInternal(instant);
                     watch.Add(children[i]);
                 }
             }
@@ -437,13 +447,13 @@ namespace HHG.UISystem.Runtime
                 if (children[i].IsFocused || children[i].IsFocusing)
                 {
                     children[i].wasFocused = true;
-                    children[i].Unfocus(instant);
+                    children[i].UnfocusInternal(instant);
                     watch.Add(children[i]);
                 }
                 else
                 {
                     children[i].wasFocused = true;
-                    children[i].Unfocus(true);
+                    children[i].UnfocusInternal(true);
                 }
             }
             while (watch.Count > 0 && watch.Any(child => child.IsUnfocusing))
