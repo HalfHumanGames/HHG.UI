@@ -1,135 +1,484 @@
 ﻿using HHG.Common.Runtime;
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace HHG.UISystem.Runtime
 {
-    public class UI : MonoBehaviour
+    [RequireComponent(typeof(Animator))]
+    [RequireComponent(typeof(CanvasGroup))]
+    public partial class UI : MonoBehaviour
     {
-        private static UI instance;
+        public enum OpenState
+        {
+            Closed,
+            Closing,
+            Open,
+            Opening
+        }
 
-        public static UIView Current => instance.opened.Count > 0 ? instance.opened.Peek() : null;
-        public static void Refresh<T>(object model, object id = null) where T : UIView => instance.RefreshInternal(typeof(T), model, id);
-        public static void Refresh(Type type, object model, object id = null) => instance.RefreshInternal(type, model, id);
-        public static Coroutine GoTo<T>(object id = null, bool instant = false) where T : UIView => instance.GoToInternal(typeof(T), id, instant);
-        public static Coroutine GoTo(Type type, object id = null, bool instant = false) => instance.GoToInternal(type, id, instant);
-        public static Coroutine Push<T>(object id = null, bool instant = false) where T : UIView => instance.PushInternal(typeof(T), id, instant);
-        public static Coroutine Push(Type type, object id = null, bool instant = false) => instance.PushInternal(type, id, instant);
-        public static Coroutine Pop(bool instant = false) => instance.PopInternal(instant);
-        public static Coroutine Pop(int amount, bool instant = false) => instance.PopInternal(amount, instant);
-        public static Coroutine Clear(bool instant = false) => instance.ClearInternal(instant);
-        public static Coroutine Swap<T>(object id = null, bool instant = false) where T : UIView => instance.SwapInternal(typeof(T), id, instant);
-        public static Coroutine Swap(Type type, object id = null, bool instant = false) => instance.SwapInternal(type, id, instant);
+        public enum FocusState
+        {
+            Focused,
+            Focusing,
+            Unfocused,
+            Unfocusing
+        }
 
-        public bool Debug;
+        public object Id { get; } = null;
+        public SubjectId SubjectId => new SubjectId(GetType(), Id);
+        public OpenState CurrentState => state;
+        public FocusState CurrentFocus => focus;
+        public OpenState PreviousState => previousState;
+        public FocusState PreviousFocus => previousFocus;
+        public bool IsOpen => CurrentState == OpenState.Open;
+        public bool IsOpening => CurrentState == OpenState.Opening;
+        public bool IsClosed => CurrentState == OpenState.Closed;
+        public bool IsClosing => CurrentState == OpenState.Closing;
+        public bool IsFocused => CurrentFocus == FocusState.Focused;
+        public bool IsFocusing => CurrentFocus == FocusState.Focusing;
+        public bool IsUnfocused => CurrentFocus == FocusState.Unfocused;
+        public bool IsUnfocusing => CurrentFocus == FocusState.Unfocusing;
+        public bool IsTransitioning => IsOpening || IsClosing || IsFocusing || IsUnfocusing;
+        public bool IsRoot => parent == null;
+        public UI Root => root;
+        public UI Parent => parent;
+        public IReadOnlyList<UI> Children => children;
+        public RectTransform RectTransform => rectTransform;
+        public Animator Animator => animator;
+        public CanvasGroup CanvasGroup => canvasGroup;
 
-        private Dictionary<SubjectId, UIView> views = new Dictionary<SubjectId, UIView>();
-        private Stack<UIView> opened = new Stack<UIView>();
+
+        [SerializeField] private bool center;
+        [SerializeField, FormerlySerializedAs("SelectOnFocus")] private Selectable select;
+        [SerializeField] private OpenState state;
+        [SerializeField] private FocusState focus;
+
+        public UnityEvent Opened;
+        public UnityEvent Closed;
+        public UnityEvent Focused;
+        public UnityEvent Unfocused;
+
+        private UI root;
+        private UI parent;
+        private List<UI> children = new List<UI>();
+        private RectTransform rectTransform;
+        private Animator animator;
+        private CanvasGroup canvasGroup;
+        private bool hasCloseAnimation;
+        private bool hasUnfocusAnimation;
+        private OpenState previousState;
+        private FocusState previousFocus;
+
+        private bool wasOpen { get => previousState == OpenState.Open; set => previousState = value ? OpenState.Open : OpenState.Closed; }
+        private bool wasClosed { get => previousState == OpenState.Closed; set => previousState = value ? OpenState.Closed : OpenState.Open; }
+        private bool wasFocused { get => wasOpen && previousFocus == FocusState.Focused; set => previousFocus = value ? FocusState.Focused : FocusState.Unfocused; }
+        private bool wasUnfocused { get => wasOpen && previousFocus == FocusState.Unfocused; set => previousFocus = value ? FocusState.Unfocused : FocusState.Focused; }
+
+        public void Toggle() => Toggle(false);
+        public void Open() => Open(false);
+        public void Close() => Close(false);
+        public void Focus() => Focus(false);
+        public void Unfocus() => Unfocus(false);
+        public void RebuildLayout() => LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+
+        private Coroutine Toggle(bool instant = false) => IsOpen ? Close(instant) : Open(instant);
+        private Coroutine Open(bool instant = false) => Transition(OpenCoroutine(instant));
+        private Coroutine Close(bool instant = false) => Transition(CloseCoroutine(instant));
+        private Coroutine Focus(bool instant = false) => Transition(FocusCoroutine(instant));
+        private Coroutine Unfocus(bool instant = false) => Transition(UnfocusCoroutine(instant));
 
         private void Awake()
         {
-            instance = this;
+            map.Add(SubjectId, this);
+            rectTransform = GetComponent<RectTransform>();
+            canvasGroup = GetComponent<CanvasGroup>();
+            root = this.GetTopmostComponent<UI>();
+            parent = transform.parent.GetComponentInParent<UI>();
 
-            foreach (UIView view in FindObjectsOfType<UIView>())
+            if (parent != null)
             {
-                views.Add(view.ViewId, view);
+                parent.children.Add(this);
+            }
+
+            if (animator == null)
+            {
+                animator = GetComponent<Animator>();
+            }
+
+            animator.updateMode = AnimatorUpdateMode.UnscaledTime;
+
+            if (animator.runtimeAnimatorController is AnimatorOverrideController controller)
+            {
+                hasCloseAnimation = controller["UI Close"].name != "UI Close";
+                animator.SetBool("HasClose", hasCloseAnimation);
+                hasUnfocusAnimation = controller["UI Unfocus"].name != "UI Unfocus";
+                animator.SetBool("HasUnfocus", hasUnfocusAnimation);
+            }
+
+            if (center)
+            {
+                rectTransform.anchoredPosition = Vector2.zero;
             }
         }
 
-        private void RefreshInternal(Type type, object model, object id = null)
+        private void Start()
         {
-            SubjectId key = new SubjectId(type, id);
-
-            if (views.TryGetValue(key, out UIView view) && view is UIViewT viewBase)
+            if (IsRoot)
             {
-                viewBase.RefreshWeak(model);
+                InitializeRoot();
             }
         }
 
-        private Coroutine GoToInternal(Type type, object id = null, bool instant = false) => StartCoroutine(GoToCoroutine(type, id, instant));
-        private Coroutine PushInternal(Type type, object id = null, bool instant = false) => StartCoroutine(PushCoroutine(type, id, instant));
-        private Coroutine PopInternal(bool instant = false) => StartCoroutine(PopCoroutine(instant));
-        private Coroutine PopInternal(int amount, bool instant = false) => StartCoroutine(PopCoroutine(amount, instant));
-        private Coroutine ClearInternal(bool instant = false) => StartCoroutine(ClearCoroutine(instant));
-        private Coroutine SwapInternal(Type type, object id = null, bool instant = false) => StartCoroutine(SwapCoroutine(type, id, instant));
-
-        // TODO - Need to not focus when popping deeper
-        private IEnumerator GoToCoroutine(Type type, object id = null, bool instant = false)
+        private void InitializeRoot()
         {
-            SubjectId key = new SubjectId(type, id);
-            while (opened.Count > 0 && opened.Peek().ViewId != key)
+            children.ForEach(child => child.InitializeChild());
+
+            switch (state)
             {
-                yield return PopInternal(instant);
-            }
-            if (opened.Count == 0)
-            {
-                yield return PushInternal(type, id, instant);
+                case OpenState.Closing:
+                case OpenState.Closed:
+                    state = OpenState.Open;
+                    focus = FocusState.Unfocused;
+                    Close(true);
+                    break;
+                case OpenState.Opening:
+                case OpenState.Open:
+                    state = OpenState.Closed;
+                    focus = FocusState.Unfocused;
+                    Push(GetType(), Id, true);
+                    break;
             }
         }
 
-        private IEnumerator PushCoroutine(Type type, object id = null, bool instant = false)
+        private void InitializeChild()
         {
-            SubjectId key = new SubjectId(type, id);
-            if (views.ContainsKey(key))
+            wasOpen = IsOpen || IsOpening;
+            state = IsOpen || IsOpening ? OpenState.Open : OpenState.Closed;
+
+            if ((IsOpen || IsOpening) && (parent.IsOpen || parent.IsOpening))
             {
-                if (opened.Count > 0)
+                state = OpenState.Closed;
+                focus = FocusState.Unfocused;
+                Open(true);
+            }
+            else
+            {
+                state = OpenState.Open;
+                focus = FocusState.Unfocused;
+                Close(true);
+            }
+        }
+
+        private void OnOpen()
+        {
+
+        }
+
+        private void OnClose()
+        {
+
+        }
+
+        private void OnFocus()
+        {
+            canvasGroup.interactable = true;
+
+            if (select != null)
+            {
+                select.Select();
+            }
+        }
+
+        private void OnUnfocus()
+        {
+            canvasGroup.interactable = false;
+        }
+
+        private Coroutine Transition(IEnumerator coroutine)
+        {
+            return StartCoroutine(WaitForAnimationToFinish(coroutine));
+        }
+
+        private IEnumerator WaitForAnimationToFinish(IEnumerator coroutine)
+        {
+            canvasGroup.interactable = false;
+
+            while (IsTransitioning)
+            {
+                yield return new WaitForEndOfFrame();
+            }
+
+            yield return coroutine;
+
+            canvasGroup.interactable = IsOpen && IsFocused;
+        }
+
+        private IEnumerator OpenCoroutine(bool instant = false)
+        {
+            if (IsOpen) yield break;
+
+            RebuildLayout();
+
+            state = OpenState.Opening;
+            yield return OpenSelf(instant);
+            yield return OpenChildren(instant);
+            state = OpenState.Open;
+
+            OnOpen();
+            Opened.Invoke();
+        }
+
+        private IEnumerator OpenSelf(bool instant)
+        {
+            if (instant)
+            {
+                animator.ResetTrigger("Open");
+                animator.ResetTrigger("Close");
+                animator.Play("Unfocused", -1, 1f);
+            }
+            else
+            {
+                animator.ResetTrigger("Close");
+                animator.SetTrigger("Open");
+
+                yield return new WaitForAnimatorState(animator, "Unfocused", 0f);
+            }
+        }
+
+        private IEnumerator OpenChildren(bool instant)
+        {
+            List<UI> watch = new List<UI>();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i].wasOpen)
                 {
-                    yield return opened.Peek().Unfocus(instant);
+                    children[i].Open(instant);
+                    watch.Add(children[i]);
+                }
+            }
+
+            while (watch.Count > 0 && watch.Any(child => child.IsOpening))
+            {
+                yield return new WaitForEndOfFrame();
+            }
+        }
+
+        private IEnumerator CloseCoroutine(bool instant = false)
+        {
+            if (IsClosed) yield break;
+
+            state = OpenState.Closing;
+            yield return CloseChildren(instant);
+            yield return CloseSelf(instant);
+            state = OpenState.Closed;
+
+            ResetAllTriggers();
+            OnClose();
+            Closed.Invoke();
+        }
+
+        private IEnumerator CloseChildren(bool instant)
+        {
+            List<UI> watch = new List<UI>();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i].IsOpen || children[i].IsOpening)
+                {
+                    children[i].wasOpen = true;
+                    children[i].Close(instant);
+                    watch.Add(children[i]);
+                }
+                else
+                {
+                    children[i].wasClosed = true;
+                    children[i].Close(true);
+                }
+            }
+
+            while (watch.Count > 0 && watch.Any(child => child.IsClosing))
+            {
+                yield return new WaitForEndOfFrame();
+            }
+        }
+
+        private IEnumerator CloseSelf(bool instant)
+        {
+            if (instant)
+            {
+                if (hasCloseAnimation)
+                {
+                    animator.ResetTrigger("Open");
+                    animator.ResetTrigger("Close");
+                    animator.Play("Close", 0, 1f);
+                }
+                else
+                {
+                    animator.Play("Close (Reverse Open)", 0, 1f);
+                }
+            }
+            else
+            {
+                if (IsFocusing || IsFocused)
+                {
+                    animator.ResetTrigger("Focus");
+                    animator.SetTrigger("Unfocus");
+
+                    yield return new WaitForAnimatorState(animator, "Unfocused", 1f);
                 }
 
-                UIView view = views[key];
+                animator.ResetTrigger("Open");
+                animator.SetTrigger("Close");
 
-                // Horizontal/vertical layouts may not update for some reason
-                // So we force rebuild the layout each time we open a view
-                view.RebuildLayout();
-
-                opened.Push(view);
-                yield return view.Open(instant);
-                yield return view.Focus(instant);
+                yield return new WaitForAnimatorState(animator, "Close", 1f);
             }
         }
 
-        private IEnumerator PopCoroutine(bool instant = false)
+        private IEnumerator FocusCoroutine(bool instant = false)
         {
-            if (opened.Count > 0)
-            {
-                UIView popped = opened.Pop();
-                yield return popped.Unfocus(instant);
-                yield return popped.Close(instant);
+            if (IsClosed || IsFocused) yield break;
 
-                if (opened.Count > 0)
+            focus = FocusState.Focusing;
+            yield return FocusSelf(instant);
+            yield return FocusChildren(instant);
+            focus = FocusState.Focused;
+
+            ResetAllTriggers();
+            OnFocus();
+            Focused.Invoke();
+        }
+
+        private IEnumerator FocusSelf(bool instant)
+        {
+            if (instant)
+            {
+                animator.ResetTrigger("Focus");
+                animator.ResetTrigger("Unfocus");
+                animator.Play("Focus", 0, 1f);
+            }
+            else
+            {
+                animator.ResetTrigger("Unfocus");
+                animator.SetTrigger("Focus");
+
+                yield return new WaitForAnimatorState(animator, "Focused", 0f);
+            }
+        }
+
+        private IEnumerator FocusChildren(bool instant)
+        {
+            List<UI> watch = new List<UI>();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i].wasFocused)
                 {
-                    yield return opened.Peek().Focus(instant);
+                    children[i].Focus(instant);
+                    watch.Add(children[i]);
                 }
             }
-        }
 
-        private IEnumerator PopCoroutine(int amount, bool instant = false)
-        {
-            if (amount > opened.Count)
+            while (watch.Count > 0 && watch.Any(child => child.IsFocusing))
             {
-                amount = opened.Count;
-            }
-            for (int i = 0; i < amount; i++)
-            {
-                yield return PopInternal(instant);
+                yield return new WaitForEndOfFrame();
             }
         }
 
-        private IEnumerator ClearCoroutine(bool instant = false)
+        private IEnumerator UnfocusCoroutine(bool instant = false)
         {
-            while (opened.Count > 0)
+            if (IsClosed || IsUnfocused) yield break;
+
+            focus = FocusState.Unfocusing;
+            yield return UnfocusSelf(instant);
+            yield return UnfocusChildren(instant);
+            focus = FocusState.Unfocused;
+
+            OnUnfocus();
+            Unfocused.Invoke();
+        }
+
+        private IEnumerator UnfocusSelf(bool instant)
+        {
+            if (instant)
             {
-                yield return PopInternal(instant);
+                if (hasUnfocusAnimation)
+                {
+                    animator.ResetTrigger("Focus");
+                    animator.ResetTrigger("Unfocus");
+                    animator.Play("Unfocus", 0, 1f);
+                }
+                else
+                {
+                    animator.Play("Unfocus (Reverse Focus)", 0, 1f);
+                }
+            }
+            else
+            {
+                animator.ResetTrigger("Focus");
+                animator.SetTrigger("Unfocus");
+
+                yield return new WaitForAnimatorState(animator, "Unfocused", 1f);
             }
         }
 
-        private IEnumerator SwapCoroutine(Type type, object id = null, bool instant = false)
+        private IEnumerator UnfocusChildren(bool instant)
         {
-            yield return PopInternal(instant);
-            yield return PushInternal(type, id, instant);
+            List<UI> watch = new List<UI>();
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (children[i].IsFocused || children[i].IsFocusing)
+                {
+                    children[i].wasFocused = true;
+                    children[i].Unfocus(instant);
+                    watch.Add(children[i]);
+                }
+                else
+                {
+                    children[i].wasFocused = true;
+                    children[i].Unfocus(true);
+                }
+            }
+            while (watch.Count > 0 && watch.Any(child => child.IsUnfocusing))
+            {
+                yield return new WaitForEndOfFrame();
+            }
         }
+
+        private void ResetAllTriggers()
+        {
+            animator.ResetTrigger("Open");
+            animator.ResetTrigger("Close");
+            animator.ResetTrigger("Focus");
+            animator.ResetTrigger("Unfocus");
+        }
+
+        private void Destroy()
+        {
+            map.Remove(SubjectId);
+        }
+    }
+
+    public abstract class UIT : UI, IRefreshableWeak
+    {
+        public abstract void RefreshWeak(object data);
+    }
+
+    public abstract class UI<T> : UIT, IRefreshable<T>
+    {
+        public override void RefreshWeak(object model)
+        {
+            Refresh((T)model);
+            RebuildLayout();
+        }
+
+        public abstract void Refresh(T model);
     }
 }

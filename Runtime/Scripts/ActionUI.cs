@@ -1,6 +1,7 @@
 using HHG.Common.Runtime;
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace HHG.UISystem.Runtime
 {
@@ -12,19 +13,23 @@ namespace HHG.UISystem.Runtime
             Push,
             Pop,
             Clear,
-            Swap
+            Swap,
+            Open,
+            Close,
+            Focus,
+            Unfocus
         }
 
         [SerializeField] private Action action;
-        [SerializeField, Dropdown] private ViewAsset view;
+        [SerializeField, Dropdown, FormerlySerializedAs("view")] private UIAsset ui;
 
         public void DoAction(MonoBehaviour invoker)
         {
-            Type type = view == null ? null : Type.GetType(view.Value);
+            Type type = ui == null ? null : Type.GetType(ui.Value);
 
-            if (view is ViewAssetT v)
+            if (ui is UIAssetT asset)
             {
-                UI.Refresh(type, v.WeakData);
+                UI.Refresh(type, asset.WeakData);
             }
 
             switch (action)
@@ -43,6 +48,18 @@ namespace HHG.UISystem.Runtime
                     break;
                 case Action.Swap:
                     UI.Swap(type);
+                    break;
+                case Action.Open:
+                    UI.Open(type);
+                    break;
+                case Action.Close:
+                    UI.Close(type);
+                    break;
+                case Action.Focus:
+                    UI.Focus(type);
+                    break;
+                case Action.Unfocus:
+                    UI.Unfocus(type);
                     break;
             }
         }

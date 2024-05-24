@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace HHG.UISystem.Runtime
 {
-    public class UIModal : UIView<Modal>
+    public class UIModal : UI<Modal>
     {
         [SerializeField] private TextMeshProUGUI headerLabel;
         [SerializeField] private TextMeshProUGUI descriptionLabel;
