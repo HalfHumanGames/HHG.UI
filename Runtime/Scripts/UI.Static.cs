@@ -3,7 +3,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 
 namespace HHG.UISystem.Runtime
 {
@@ -11,8 +14,54 @@ namespace HHG.UISystem.Runtime
     {
         private static Dictionary<SubjectId, UI> map = new Dictionary<SubjectId, UI>();
         private static Stack<UI> opened = new Stack<UI>();
+        private static InputAction back;
+
+        public static event Action Back;
+
+        static UI()
+        {
+            SceneManager.sceneUnloaded += OnSceneUnloaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private static void OnSceneUnloaded(Scene scene)
+        {
+            map.Clear(); // Shouldn't be needed but just in case
+            opened.Clear(); // Since don't need to pop all before load new scene
+        }
+
+        private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            EventSystem current = EventSystem.current;
+
+            if (current != null)
+            {
+                InputSystemUIInputModule module = current.currentInputModule as InputSystemUIInputModule ?? current.GetComponent<InputSystemUIInputModule>();
+
+                if (module != null)
+                {
+                    if (module.cancel.action != back)
+                    {
+                        if (back != null)
+                        {
+                            back.performed -= OnBack;
+                        }
+
+                        back = module.cancel.action;
+                        back.performed += OnBack;
+                    }
+                }
+            }
+        }
+
+        private static void OnBack(InputAction.CallbackContext ctx)
+        {
+            Pop();
+            Back?.Invoke();
+        }
 
         public static UI Current => opened.Count > 0 ? opened.Peek() : null;
+        public static int Count => opened.Count;
         public static void Refresh<T, TData>(object id, TData data) where T : UI<TData> => RefreshInternal(typeof(T), id, data);
         public static void Refresh<T, TData>(TData data) where T : UI<TData> => RefreshInternal(typeof(T), null, data);
         public static void Refresh(Type type, object id, object data) => RefreshInternal(type, id, data);

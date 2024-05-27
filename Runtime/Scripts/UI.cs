@@ -53,7 +53,6 @@ namespace HHG.UISystem.Runtime
         public Animator Animator => animator;
         public CanvasGroup CanvasGroup => canvasGroup;
 
-
         [SerializeField] private bool center;
         [SerializeField, FormerlySerializedAs("SelectOnFocus")] private Selectable select;
         [SerializeField] private OpenState state;
