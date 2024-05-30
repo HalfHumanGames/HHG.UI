@@ -1,6 +1,5 @@
 using HHG.Common.Runtime;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace HHG.UISystem.Runtime
@@ -9,11 +8,9 @@ namespace HHG.UISystem.Runtime
     public class ModalButton
     {
         public string Text => text;
-        public List<IAction> Actions => actions;
-        public List<IActionAsync> ActionsAsync => actionsAsync;
+        public ActionEvent OnClick => onClick;
 
         [SerializeField] private string text;
-        [SerializeReference, SerializeReferenceDropdown] private List<IAction> actions = new List<IAction>();
-        [SerializeReference, SerializeReferenceDropdown] private List<IActionAsync> actionsAsync = new List<IActionAsync>();
+        [SerializeField] private ActionEvent onClick = new ActionEvent();
     }
 }

@@ -80,19 +80,24 @@ namespace HHG.UISystem.Runtime
         private bool wasUnfocused { get => wasOpen && previousFocus == FocusState.Unfocused; set => previousFocus = value ? FocusState.Unfocused : FocusState.Focused; }
 
         [ContextMenu("Open")]
-        public void Open(bool instant = false) => OpenInternal(instant);
+        public void Open() => OpenInternal(false);
+        public void Open(bool instant) => OpenInternal(instant);
 
         [ContextMenu("Close")]
-        public void Close(bool instant = false) => CloseInternal(instant);
+        public void Close() => CloseInternal(false);
+        public void Close(bool instant) => CloseInternal(instant);
 
         [ContextMenu("Toggle")]
-        public void Toggle(bool instant = false) => ToggleInternal(instant);
+        public void Toggle() => ToggleInternal(false);
+        public void Toggle(bool instant) => ToggleInternal(instant);
 
         [ContextMenu("Focus")]
-        public void Focus(bool instant = false) => FocusInternal(instant);
+        public void Focus() => FocusInternal(false);
+        public void Focus(bool instant) => FocusInternal(instant);
 
         [ContextMenu("Unfocus")]
-        public void Unfocus(bool instant = false) => UnfocusInternal(instant);
+        public void Unfocus() => UnfocusInternal(false);
+        public void Unfocus(bool instant) => UnfocusInternal(instant);
 
         public void RebuildLayout() => LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
 

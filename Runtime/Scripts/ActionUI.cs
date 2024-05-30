@@ -23,7 +23,7 @@ namespace HHG.UISystem.Runtime
         [SerializeField] private Action action;
         [SerializeField, Dropdown, FormerlySerializedAs("view")] private UIAsset ui;
 
-        public void DoAction(MonoBehaviour invoker)
+        public void Invoke(MonoBehaviour invoker)
         {
             Type type = ui == null ? null : Type.GetType(ui.Value);
 
