@@ -10,7 +10,7 @@ namespace HHG.UISystem.Runtime
         public Color TextColor => textColor;
         public Color BackgroundColor => backgroundColor;
 
-        [SerializeField] private string text;
+        [SerializeField, TextArea] private string text;
         [SerializeField] private Color textColor;
         [SerializeField] private Color backgroundColor;
     }

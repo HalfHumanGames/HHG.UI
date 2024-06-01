@@ -1,7 +1,6 @@
 ﻿using HHG.Common.Runtime;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -73,6 +72,7 @@ namespace HHG.UISystem.Runtime
         private bool hasUnfocusAnimation;
         private OpenState previousState;
         private FocusState previousFocus;
+        private bool isLayoutDirty;
 
         private bool wasOpen { get => previousState == OpenState.Open; set => previousState = value ? OpenState.Open : OpenState.Closed; }
         private bool wasClosed { get => previousState == OpenState.Closed; set => previousState = value ? OpenState.Closed : OpenState.Open; }
@@ -99,7 +99,7 @@ namespace HHG.UISystem.Runtime
         public void Unfocus() => UnfocusInternal(false);
         public void Unfocus(bool instant) => UnfocusInternal(instant);
 
-        public void RebuildLayout() => LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+        public void RebuildLayout() => isLayoutDirty = true;
 
         private Coroutine OpenInternal(bool instant = false) => Transition(OpenCoroutine(instant));
         private Coroutine CloseInternal(bool instant = false) => Transition(CloseCoroutine(instant));
@@ -107,7 +107,7 @@ namespace HHG.UISystem.Runtime
         private Coroutine FocusInternal(bool instant = false) => Transition(FocusCoroutine(instant));
         private Coroutine UnfocusInternal(bool instant = false) => Transition(UnfocusCoroutine(instant));
 
-        private void Awake()
+        protected virtual void Awake()
         {
             map.Add(SubjectId, this);
             rectTransform = GetComponent<RectTransform>();
@@ -141,11 +141,30 @@ namespace HHG.UISystem.Runtime
             }
         }
 
-        private void Start()
+        protected virtual void Start()
         {
             if (IsRoot)
             {
                 InitializeRoot();
+            }
+        }
+
+        protected virtual void OnEnable()
+        {
+
+        }
+
+        protected virtual void OnDisable()
+        {
+
+        }
+
+        protected virtual void Update()
+        {
+            if (isLayoutDirty)
+            {
+                isLayoutDirty = false;
+                RectTransform.RebuildLayout();
             }
         }
 
@@ -189,17 +208,17 @@ namespace HHG.UISystem.Runtime
             }
         }
 
-        private void OnOpen()
+        protected virtual void OnOpen()
         {
 
         }
 
-        private void OnClose()
+        protected virtual void OnClose()
         {
 
         }
 
-        private void OnFocus()
+        protected virtual void OnFocus()
         {
             canvasGroup.interactable = true;
 
@@ -209,7 +228,7 @@ namespace HHG.UISystem.Runtime
             }
         }
 
-        private void OnUnfocus()
+        protected virtual void OnUnfocus()
         {
             canvasGroup.interactable = false;
         }
@@ -474,7 +493,7 @@ namespace HHG.UISystem.Runtime
             animator.ResetTrigger("Unfocus");
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             map.Remove(SubjectId);
         }

@@ -11,7 +11,7 @@ namespace HHG.UISystem.Runtime
         public ModalButton[] Buttons => buttons;
 
         [SerializeField] private string header;
-        [SerializeField] private string description;
+        [SerializeField, TextArea] private string description;
         [SerializeField] private ModalButton[] buttons;
     }
 }
