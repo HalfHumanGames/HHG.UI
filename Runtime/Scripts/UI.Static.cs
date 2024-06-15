@@ -56,8 +56,11 @@ namespace HHG.UISystem.Runtime
 
         private static void OnBack(InputAction.CallbackContext ctx)
         {
-            Pop();
-            Back?.Invoke();
+            if (Current && Current.backEnabled)
+            {
+                Pop();
+                Back?.Invoke();
+            }
         }
 
         public static UI Current => opened.Count > 0 ? opened.Peek() : null;

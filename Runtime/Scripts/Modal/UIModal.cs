@@ -31,6 +31,8 @@ namespace HHG.UISystem.Runtime
                     button.gameObject.SetActive(false);
                 }
             }
+
+            EnableBack(modal.BackEnabled);
         }
     }
 }

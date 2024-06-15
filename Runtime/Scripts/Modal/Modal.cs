@@ -8,10 +8,12 @@ namespace HHG.UISystem.Runtime
     {
         public string Header => header;
         public string Description => description;
+        public bool BackEnabled => backEnabled;
         public ModalButton[] Buttons => buttons;
 
         [SerializeField] private string header;
         [SerializeField, TextArea] private string description;
+        [SerializeField] private bool backEnabled = true;
         [SerializeField] private ModalButton[] buttons;
     }
 }

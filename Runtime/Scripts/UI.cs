@@ -56,11 +56,12 @@ namespace HHG.UISystem.Runtime
         [SerializeField, FormerlySerializedAs("SelectOnFocus")] private Selectable select;
         [SerializeField] private OpenState state;
         [SerializeField] private FocusState focus;
+        [SerializeField] private bool backEnabled = true;
 
-        public UnityEvent Opened;
-        public UnityEvent Closed;
-        public UnityEvent Focused;
-        public UnityEvent Unfocused;
+        public UnityEvent Opened = new UnityEvent();
+        public UnityEvent Closed = new UnityEvent();
+        public UnityEvent Focused = new UnityEvent();
+        public UnityEvent Unfocused = new UnityEvent();
 
         private UI root;
         private UI parent;
@@ -100,6 +101,10 @@ namespace HHG.UISystem.Runtime
         public void Unfocus(bool instant) => UnfocusInternal(instant);
 
         public void RebuildLayout() => isLayoutDirty = true;
+
+        public void EnableBack(bool val) => backEnabled = val;
+        public void EnableBack() => backEnabled = true;
+        public void DisableBack() => backEnabled = false;
 
         private Coroutine OpenInternal(bool instant = false) => Transition(OpenCoroutine(instant));
         private Coroutine CloseInternal(bool instant = false) => Transition(CloseCoroutine(instant));
