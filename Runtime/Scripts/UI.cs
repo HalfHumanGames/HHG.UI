@@ -58,10 +58,10 @@ namespace HHG.UISystem.Runtime
         [SerializeField] private FocusState focus;
         [SerializeField] private bool backEnabled = true;
 
-        public UnityEvent Opened = new UnityEvent();
-        public UnityEvent Closed = new UnityEvent();
-        public UnityEvent Focused = new UnityEvent();
-        public UnityEvent Unfocused = new UnityEvent();
+        public ActionEvent OnOpened = new ActionEvent();
+        public ActionEvent OnClosed = new ActionEvent();
+        public ActionEvent OnFocused = new ActionEvent();
+        public ActionEvent OnUnfocused = new ActionEvent();
 
         private UI root;
         private UI parent;
@@ -249,7 +249,7 @@ namespace HHG.UISystem.Runtime
 
             while (IsTransitioning)
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
 
             yield return coroutine;
@@ -269,7 +269,8 @@ namespace HHG.UISystem.Runtime
             state = OpenState.Open;
 
             OnOpen();
-            Opened.Invoke();
+            OnOpened.Invoke(this);
+            OnAnyOpened.Invoke(this);
         }
 
         private IEnumerator OpenSelf(bool instant)
@@ -304,7 +305,7 @@ namespace HHG.UISystem.Runtime
 
             while (watch.Count > 0 && watch.Any(child => child.IsOpening))
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
         }
 
@@ -319,7 +320,8 @@ namespace HHG.UISystem.Runtime
 
             ResetAllTriggers();
             OnClose();
-            Closed.Invoke();
+            OnClosed.Invoke(this);
+            OnAnyClosed.Invoke(this);
         }
 
         private IEnumerator CloseChildren(bool instant)
@@ -343,7 +345,7 @@ namespace HHG.UISystem.Runtime
 
             while (watch.Count > 0 && watch.Any(child => child.IsClosing))
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
         }
 
@@ -390,7 +392,8 @@ namespace HHG.UISystem.Runtime
 
             ResetAllTriggers();
             OnFocus();
-            Focused.Invoke();
+            OnFocused.Invoke(this);
+            OnAnyFocused.Invoke(this);
         }
 
         private IEnumerator FocusSelf(bool instant)
@@ -425,7 +428,7 @@ namespace HHG.UISystem.Runtime
 
             while (watch.Count > 0 && watch.Any(child => child.IsFocusing))
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
         }
 
@@ -439,7 +442,8 @@ namespace HHG.UISystem.Runtime
             focus = FocusState.Unfocused;
 
             OnUnfocus();
-            Unfocused.Invoke();
+            OnUnfocused.Invoke(this);
+            OnAnyUnfocused.Invoke(this);
         }
 
         private IEnumerator UnfocusSelf(bool instant)
@@ -486,7 +490,7 @@ namespace HHG.UISystem.Runtime
             }
             while (watch.Count > 0 && watch.Any(child => child.IsUnfocusing))
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
         }
 

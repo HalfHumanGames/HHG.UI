@@ -12,12 +12,15 @@ namespace HHG.UISystem.Runtime
 {
     public partial class UI
     {
+        public static ActionEvent OnAnyOpened = new ActionEvent();
+        public static ActionEvent OnAnyClosed = new ActionEvent();
+        public static ActionEvent OnAnyFocused = new ActionEvent();
+        public static ActionEvent OnAnyUnfocused = new ActionEvent();
+        public static ActionEvent OnBack = new ActionEvent();
+
         private static Dictionary<SubjectId, UI> map = new Dictionary<SubjectId, UI>();
         private static Stack<UI> opened = new Stack<UI>();
         private static InputAction back;
-
-        public static event Action Back;
-
         static UI()
         {
             SceneManager.sceneUnloaded += OnSceneUnloaded;
@@ -44,22 +47,22 @@ namespace HHG.UISystem.Runtime
                     {
                         if (back != null)
                         {
-                            back.performed -= OnBack;
+                            back.performed -= Back;
                         }
 
                         back = module.cancel.action;
-                        back.performed += OnBack;
+                        back.performed += Back;
                     }
                 }
             }
         }
 
-        private static void OnBack(InputAction.CallbackContext ctx)
+        private static void Back(InputAction.CallbackContext ctx)
         {
             if (Current && Current.backEnabled)
             {
                 Pop();
-                Back?.Invoke();
+                OnBack?.Invoke(Current);
             }
         }
 
