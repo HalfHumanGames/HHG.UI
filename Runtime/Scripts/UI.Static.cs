@@ -61,8 +61,11 @@ namespace HHG.UISystem.Runtime
         {
             if (Current && Current.backEnabled)
             {
+                // Use temp since after we pop, current
+                // can be null if the stack size is 1
+                UI temp = Current;
                 Pop();
-                OnBack?.Invoke(Current);
+                OnBack?.Invoke(temp);
             }
         }
 
