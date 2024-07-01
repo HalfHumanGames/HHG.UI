@@ -18,7 +18,7 @@ namespace HHG.UISystem.Runtime
             {
                 UIButton button = buttons[i];
 
-                if (i < modal.Buttons.Length)
+                if (i < modal.Buttons.Count)
                 {
                     ModalButton modalButton = modal.Buttons[i];
                     button.GetComponentInChildren<TextMeshProUGUI>().text = modal.Buttons[i].Text;

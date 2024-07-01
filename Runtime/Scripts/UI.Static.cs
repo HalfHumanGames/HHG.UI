@@ -1,4 +1,5 @@
 ﻿using HHG.Common.Runtime;
+using HHG.UI.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,8 +20,10 @@ namespace HHG.UISystem.Runtime
         public static ActionEvent OnBack = new ActionEvent();
 
         private static Dictionary<SubjectId, UI> map = new Dictionary<SubjectId, UI>();
+        private static Dictionary<SubjectId, IDataProvider> dataProviders = new Dictionary<SubjectId, IDataProvider>();
         private static Stack<UI> opened = new Stack<UI>();
         private static InputAction back;
+
         static UI()
         {
             SceneManager.sceneUnloaded += OnSceneUnloaded;
@@ -75,6 +78,14 @@ namespace HHG.UISystem.Runtime
         public static void Refresh<T, TData>(TData data) where T : UI<TData> => RefreshInternal(typeof(T), null, data);
         public static void Refresh(Type type, object id, object data) => RefreshInternal(type, id, data);
         public static void Refresh(Type type, object data) => RefreshInternal(type, null, data);
+        public static void RegisterDataProvider<T>(object id, IDataProvider dataProvider) where T : UI => RegisterDataProviderInternal(typeof(T), id, dataProvider);
+        public static void RegisterDataProvider<T>(IDataProvider dataProvider) where T : UI => RegisterDataProviderInternal(typeof(T), null, dataProvider);
+        public static void RegisterDataProvider(Type type, object id, IDataProvider dataProvider) => RegisterDataProviderInternal(type, id, dataProvider);
+        public static void RegisterDataProvider(Type type, IDataProvider dataProvider) => RegisterDataProviderInternal(type, null, dataProvider);
+        public static void UnregisterDataProvider<T>(object id) where T : UI => UnregisterDataProviderInternal(typeof(T), id);
+        public static void UnregisterDataProvider<T>() where T : UI => UnregisterDataProviderInternal(typeof(T), null);
+        public static void UnregisterDataProvider(Type type, object id) => UnregisterDataProviderInternal(type, id);
+        public static void UnregisterDataProvider(Type type) => UnregisterDataProviderInternal(type, null);
         public static Coroutine Open<T, TData>(object id, TData data, bool instant = false) where T : UI => OpenInternal(typeof(T), id, instant, data);
         public static Coroutine Open<T, TData>(TData data, bool instant = false) where T : UI => OpenInternal(typeof(T), null, instant, data);
         public static Coroutine Open<TData>(Type type, object id, TData data, bool instant = false) => OpenInternal(type, id, instant, data);
@@ -117,8 +128,24 @@ namespace HHG.UISystem.Runtime
 
             if (map.TryGetValue(key, out UI ui) && ui is IRefreshableWeak refreshable)
             {
+                if (dataProviders.TryGetValue(key, out IDataProvider dataProvider))
+                {
+                    data = dataProvider.GetDataWeak(data);
+                }
                 refreshable.RefreshWeak(data);
             }
+        }
+
+        private static void RegisterDataProviderInternal(Type type, object id, IDataProvider dataProvider)
+        {
+            SubjectId key = new SubjectId(type, id);
+            dataProviders[key] = dataProvider;
+        }
+
+        private static void UnregisterDataProviderInternal(Type type, object id)
+        {
+            SubjectId key = new SubjectId(type, id);
+            dataProviders.Remove(key);
         }
 
         private static Coroutine OpenInternal(Type type, object id = null, bool instant = false, object data = null) => CoroutineUtil.StartCoroutine(OpenCoroutine(type, id, instant, data));
@@ -140,6 +167,10 @@ namespace HHG.UISystem.Runtime
             {
                 if (data != null && map[key] is IRefreshableWeak refreshable)
                 {
+                    if (dataProviders.TryGetValue(key, out IDataProvider dataProvider))
+                    {
+                        data = dataProvider.GetDataWeak(data);
+                    }
                     refreshable.RefreshWeak(data);
                 }
                 yield return map[key].OpenInternal(instant);

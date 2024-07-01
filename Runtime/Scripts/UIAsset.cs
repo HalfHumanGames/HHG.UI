@@ -1,4 +1,5 @@
 using HHG.Common.Runtime;
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -7,6 +8,8 @@ namespace HHG.UISystem.Runtime
     [CreateAssetMenu(fileName = "UI", menuName = "HHG/Assets/Variable/UI")]
     public class UIAsset : StringAsset
     {
+        public Type Type => Type.GetType(Value);
+
         [SerializeField, FormerlySerializedAs("view")] private GameObject prefab;
 
         private void OnValidate()
@@ -30,9 +33,9 @@ namespace HHG.UISystem.Runtime
 
     public class UIAsset<T> : UIAssetT
     {
-        public T Data => data;
+        public virtual T Data => data;
         public override object WeakData => data;
 
-        [SerializeField] private T data;
+        [SerializeField] protected T data;
     }
 }
