@@ -3,14 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace HHG.UISystem.Runtime
 {
-    [RequireComponent(typeof(Animator))]
+    [RequireComponent(typeof(CanvasRenderer))]
     [RequireComponent(typeof(CanvasGroup))]
+    [RequireComponent(typeof(Animator))]
     public partial class UI : MonoBehaviour
     {
         public enum OpenState
@@ -215,12 +215,12 @@ namespace HHG.UISystem.Runtime
 
         protected virtual void OnOpen()
         {
-
+            canvasGroup.alpha = 1f;
         }
 
         protected virtual void OnClose()
         {
-
+            canvasGroup.alpha = 0f;
         }
 
         protected virtual void OnFocus()
