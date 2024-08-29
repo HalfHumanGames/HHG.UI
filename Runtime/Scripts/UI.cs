@@ -249,7 +249,7 @@ namespace HHG.UISystem.Runtime
 
             while (IsTransitioning)
             {
-                yield return WaitFor.EndOfFrame;
+                yield return null;
             }
 
             yield return coroutine;
@@ -305,7 +305,7 @@ namespace HHG.UISystem.Runtime
 
             while (watch.Count > 0 && watch.Any(child => child.IsOpening))
             {
-                yield return WaitFor.EndOfFrame;
+                yield return null;
             }
         }
 
@@ -345,7 +345,7 @@ namespace HHG.UISystem.Runtime
 
             while (watch.Count > 0 && watch.Any(child => child.IsClosing))
             {
-                yield return WaitFor.EndOfFrame;
+                yield return null;
             }
         }
 
@@ -428,7 +428,7 @@ namespace HHG.UISystem.Runtime
 
             while (watch.Count > 0 && watch.Any(child => child.IsFocusing))
             {
-                yield return WaitFor.EndOfFrame;
+                yield return null;
             }
         }
 
@@ -490,7 +490,7 @@ namespace HHG.UISystem.Runtime
             }
             while (watch.Count > 0 && watch.Any(child => child.IsUnfocusing))
             {
-                yield return WaitFor.EndOfFrame;
+                yield return null;
             }
         }
 
