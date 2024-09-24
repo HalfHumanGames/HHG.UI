@@ -5,6 +5,7 @@ using UnityEngine.Serialization;
 
 namespace HHG.UISystem.Runtime
 {
+    [Serializable]
     public class ActionUI : IAction
     {
         public enum Action
