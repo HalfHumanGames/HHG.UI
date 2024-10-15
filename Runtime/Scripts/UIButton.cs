@@ -1,5 +1,4 @@
 using HHG.Common.Runtime;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +7,8 @@ namespace HHG.UISystem.Runtime
     [RequireComponent(typeof(Button))]
     public class UIButton : MonoBehaviour
     {
+        public Button Button => button;
+
         public ActionEvent OnClick => onClick;
 
         [SerializeField] private ActionEvent onClick = new ActionEvent();
