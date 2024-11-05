@@ -504,7 +504,12 @@ namespace HHG.UISystem.Runtime
 
         protected virtual void OnDestroy()
         {
-            map.Remove(SubjectId);
+            // Make sure the map contains this UI instance
+            // otherwise you may remove other instances
+            if (map.ContainsValue(this))
+            {
+                map.Remove(SubjectId);
+            }
         }
     }
 
