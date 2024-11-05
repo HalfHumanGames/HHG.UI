@@ -32,6 +32,7 @@ namespace HHG.UISystem.Runtime
                 {
                     images[i].sprite = modal.Sprites[i];
                     images[i].color = Color.white;
+                    images[i].SetNativeSize();
                 }
                 else
                 {

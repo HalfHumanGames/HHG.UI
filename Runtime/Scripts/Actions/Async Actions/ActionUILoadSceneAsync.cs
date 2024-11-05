@@ -13,6 +13,7 @@ namespace HHG.UISystem.Runtime
         [SerializeField, Dropdown] private LoadingScreenAsset loadingScreen;
 
         private Action onLoaded;
+        private LoadingScreen data;
         private float timestamp;
 
         public ActionUILoadSceneAsync()
@@ -30,14 +31,16 @@ namespace HHG.UISystem.Runtime
         {
             if (loadingScreen == null)
             {
-                loadingScreen = Database.Get<LoadingScreenAsset>(ls => ls.Data.IsDefault);
+                loadingScreen = Database.Get<LoadingScreenAsset>(ls => ls.IsDefault);
             }
 
             ActionLoadSceneAsync loadScene = new ActionLoadSceneAsync(sceneName, onLoaded);
 
             if (UI.TryGet(out UILoadingScreen ui))
             {
-                ui.Refresh(loadingScreen.Data);
+                // Cache data in case it is dynamic and changes later
+                data = loadingScreen.Data;
+                ui.Refresh(data);
                 yield return ui.Open();
                 timestamp = Time.time;
                 SceneManager.sceneLoaded -= OnSceneLoaded;
@@ -69,7 +72,8 @@ namespace HHG.UISystem.Runtime
             if (UI.TryGet(out UILoadingScreen ui))
             {
                 // Refresh in case not using persistent loading screen
-                ui.Refresh(loadingScreen.Data);
+                // Used cache data in case it is dynamic and has changed
+                ui.Refresh(data);
 
                 if (wait > 0f)
                 {
