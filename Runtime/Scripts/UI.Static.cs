@@ -32,8 +32,9 @@ namespace HHG.UISystem.Runtime
 
         private static void OnSceneUnloaded(Scene scene)
         {
-            map.Clear(); // Shouldn't be needed but just in case
-            opened.Clear(); // Since don't need to pop all before load new scene
+            // Do not clear the map since that breaks any persistent UIs
+            // Clear since not required to pop all UIs before loading a new scene
+            opened.Clear(); 
         }
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -74,6 +75,10 @@ namespace HHG.UISystem.Runtime
 
         public static UI Current => opened.Count > 0 ? opened.Peek() : null;
         public static int Count => opened.Count;
+        public static bool TryGet<T>(out T ui) where T : UI => TryGet<T>(null, out ui);
+        public static bool TryGet<T>(object id, out T ui) where T : UI => TryGet(typeof(T), id, out UI val) && (ui = val as T) != null || (ui = null) is T; 
+        public static bool TryGet(Type type, out UI ui) => TryGet(type, null, out ui);
+        public static bool TryGet(Type type, object id, out UI ui) => map.TryGetValue(new SubjectId(type, id), out ui);
         public static void Refresh<T, TData>(object id, TData data) where T : UI<TData> => RefreshInternal(typeof(T), id, data);
         public static void Refresh<T, TData>(TData data) where T : UI<TData> => RefreshInternal(typeof(T), null, data);
         public static void Refresh(Type type, object id, object data) => RefreshInternal(type, id, data);
