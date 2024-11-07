@@ -21,9 +21,10 @@ namespace HHG.UISystem.Runtime
 
         }
 
-        public ActionUILoadSceneAsync(SceneNameAsset sceneName, Action onLoaded = null)
+        public ActionUILoadSceneAsync(SceneNameAsset sceneName, LoadingScreenAsset loadingScreen = null, Action onLoaded = null)
         {
             this.sceneName = sceneName;
+            this.loadingScreen = loadingScreen;
             this.onLoaded = onLoaded;
         }
 
