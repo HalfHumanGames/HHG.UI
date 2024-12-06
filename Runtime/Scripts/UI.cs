@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -52,11 +53,12 @@ namespace HHG.UISystem.Runtime
         public Animator Animator => animator;
         public CanvasGroup CanvasGroup => canvasGroup;
 
-        [SerializeField] private bool center;
-        [SerializeField, FormerlySerializedAs("SelectOnFocus")] private Selectable select;
-        [SerializeField] private OpenState state;
-        [SerializeField] private FocusState focus;
-        [SerializeField] private bool backEnabled = true;
+        [SerializeField] protected bool center;
+        [SerializeField, FormerlySerializedAs("SelectOnFocus")] protected Selectable select;
+        [SerializeField] protected bool rememberSelection;
+        [SerializeField] protected OpenState state;
+        [SerializeField] protected FocusState focus;
+        [SerializeField] protected bool backEnabled = true;
 
         public ActionEvent OnOpened = new ActionEvent();
         public ActionEvent OnClosed = new ActionEvent();
@@ -236,6 +238,16 @@ namespace HHG.UISystem.Runtime
         protected virtual void OnUnfocus()
         {
             canvasGroup.interactable = false;
+
+            if (rememberSelection && EventSystem.current && EventSystem.current.currentSelectedGameObject)
+            {
+                Selectable current = EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>();
+
+                if (current.GetComponentInParent<UI>(true) == this)
+                {
+                    select = current;
+                }
+            }
         }
 
         private Coroutine Transition(IEnumerator coroutine)

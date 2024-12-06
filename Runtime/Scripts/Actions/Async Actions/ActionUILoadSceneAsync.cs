@@ -67,8 +67,6 @@ namespace HHG.UISystem.Runtime
         {
             float elapsed = timestamp - Time.time;
             float wait = Mathf.Max(loadingScreen.Data.MinDuration - elapsed, 0f);
-
-            
             
             if (UI.TryGet(out UILoadingScreen ui))
             {
