@@ -71,6 +71,7 @@ namespace HHG.UISystem.Runtime
         private RectTransform rectTransform;
         private Animator animator;
         private CanvasGroup canvasGroup;
+        private Selectable previousSelection;
         private bool hasCloseAnimation;
         private bool hasUnfocusAnimation;
         private OpenState previousState;
@@ -229,6 +230,15 @@ namespace HHG.UISystem.Runtime
         {
             canvasGroup.interactable = true;
 
+            if (rememberSelection && EventSystem.current && EventSystem.current.currentSelectedGameObject)
+            {
+                previousSelection = EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>();
+            }
+            else
+            {
+                previousSelection = null;
+            }
+
             if (select != null)
             {
                 select.Select();
@@ -247,6 +257,11 @@ namespace HHG.UISystem.Runtime
                 {
                     select = current;
                 }
+            }
+
+            if (previousSelection != null)
+            {
+                previousSelection.Select();
             }
         }
 
