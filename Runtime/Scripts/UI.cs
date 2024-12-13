@@ -56,6 +56,7 @@ namespace HHG.UISystem.Runtime
         [SerializeField] protected bool center;
         [SerializeField, FormerlySerializedAs("SelectOnFocus")] protected Selectable select;
         [SerializeField] protected bool rememberSelection;
+        [SerializeField] protected bool restoreSelection;
         [SerializeField] protected OpenState state;
         [SerializeField] protected FocusState focus;
         [SerializeField] protected bool backEnabled = true;
@@ -230,7 +231,7 @@ namespace HHG.UISystem.Runtime
         {
             canvasGroup.interactable = true;
 
-            if (rememberSelection && EventSystem.current && EventSystem.current.currentSelectedGameObject)
+            if (restoreSelection && EventSystem.current && EventSystem.current.currentSelectedGameObject)
             {
                 previousSelection = EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>();
             }
