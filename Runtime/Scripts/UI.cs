@@ -231,7 +231,7 @@ namespace HHG.UISystem.Runtime
         {
             canvasGroup.interactable = true;
 
-            if (restoreSelection && EventSystem.current && EventSystem.current.currentSelectedGameObject)
+            if (restoreSelection && EventSystem.current.currentSelectedGameObject)
             {
                 previousSelection = EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>();
             }
@@ -250,7 +250,7 @@ namespace HHG.UISystem.Runtime
         {
             canvasGroup.interactable = false;
 
-            if (rememberSelection && EventSystem.current && EventSystem.current.currentSelectedGameObject)
+            if (rememberSelection && EventSystem.current.currentSelectedGameObject)
             {
                 Selectable current = EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>();
 
@@ -263,6 +263,10 @@ namespace HHG.UISystem.Runtime
             if (previousSelection != null)
             {
                 previousSelection.Select();
+            }
+            else
+            {
+                EventSystem.current.SetSelectedGameObject(null);
             }
         }
 
