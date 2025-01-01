@@ -72,7 +72,8 @@ namespace HHG.UISystem.Runtime
         private RectTransform rectTransform;
         private Animator animator;
         private CanvasGroup canvasGroup;
-        private Selectable previousSelection;
+        private Selectable selectionToRemember;
+        private Selectable selectionToRestore;
         private bool hasCloseAnimation;
         private bool hasUnfocusAnimation;
         private OpenState previousState;
@@ -109,6 +110,7 @@ namespace HHG.UISystem.Runtime
         public void EnableBack(bool val) => backEnabled = val;
         public void EnableBack() => backEnabled = true;
         public void DisableBack() => backEnabled = false;
+        public void ResetSelection() => selectionToRemember = null;
 
         private Coroutine OpenInternal(bool instant = false) => Transition(OpenCoroutine(instant));
         private Coroutine CloseInternal(bool instant = false) => Transition(CloseCoroutine(instant));
@@ -231,16 +233,25 @@ namespace HHG.UISystem.Runtime
         {
             canvasGroup.interactable = true;
 
-            if (restoreSelection && EventSystem.current.currentSelectedGameObject)
+            if (restoreSelection)
             {
-                previousSelection = EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>();
-            }
-            else
-            {
-                previousSelection = null;
+                if (EventSystem.current.currentSelectedGameObject &&
+                    EventSystem.current.currentSelectedGameObject.TryGetComponent(out Selectable current) &&
+                    current.GetComponentInParent<UI>(true) != this)
+                {
+                    selectionToRestore = current;
+                }
+                else
+                {
+                    selectionToRestore = null;
+                }
             }
 
-            if (select != null)
+            if (rememberSelection && selectionToRemember)
+            {
+                selectionToRemember.Select();
+            }
+            else if (select)
             {
                 select.Select();
             }
@@ -250,19 +261,23 @@ namespace HHG.UISystem.Runtime
         {
             canvasGroup.interactable = false;
 
-            if (rememberSelection && EventSystem.current.currentSelectedGameObject)
+            if (rememberSelection)
             {
-                Selectable current = EventSystem.current.currentSelectedGameObject.GetComponent<Selectable>();
-
-                if (current.GetComponentInParent<UI>(true) == this)
+                if (EventSystem.current.currentSelectedGameObject &&
+                    EventSystem.current.currentSelectedGameObject.TryGetComponent(out Selectable current) &&
+                    current.GetComponentInParent<UI>(true) == this)
                 {
-                    select = current;
+                    selectionToRemember = current;
+                }
+                else
+                {
+                    selectionToRemember = null;
                 }
             }
 
-            if (previousSelection != null)
+            if (selectionToRestore != null)
             {
-                previousSelection.Select();
+                selectionToRestore.Select();
             }
             else
             {
