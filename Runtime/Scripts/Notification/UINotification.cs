@@ -7,6 +7,7 @@ namespace HHG.UISystem.Runtime
 {
     public class UINotification : UI<Notification>
     {
+        [SerializeField] private float duration = 3f;
         [SerializeField] private TextMeshProUGUI label;
         [SerializeField] private Image background;
 
@@ -16,7 +17,7 @@ namespace HHG.UISystem.Runtime
             label.color = notification.TextColor;
             background.color = notification.BackgroundColor;
 
-            this.Invoker().AfterRealtime(3f, _ => Close());
+            this.AfterRealtime(duration, _ => Close());
         }
     }
 }
