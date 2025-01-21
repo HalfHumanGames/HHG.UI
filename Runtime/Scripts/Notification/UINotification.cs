@@ -14,8 +14,16 @@ namespace HHG.UISystem.Runtime
         public override void Refresh(Notification notification)
         {
             label.text = notification.Text;
-            label.color = notification.TextColor;
-            background.color = notification.BackgroundColor;
+
+            if (notification.SetTextColor)
+            {
+                label.color = notification.TextColor;
+            }
+
+            if (notification.SetBackgroundColor)
+            {
+                background.color = notification.BackgroundColor;
+            }
 
             this.AfterRealtime(duration, _ => Close());
         }
