@@ -233,13 +233,13 @@ namespace HHG.UISystem.Runtime
         {
             canvasGroup.interactable = true;
 
+            Selectable selection = EventSystem.current.GetCurrentSelectable();
+
             if (restoreSelection)
             {
-                if (EventSystem.current.currentSelectedGameObject &&
-                    EventSystem.current.currentSelectedGameObject.TryGetComponent(out Selectable current) &&
-                    current.GetComponentInParent<UI>(true) != this)
+                if (selection && !this.IsChild(selection))
                 {
-                    selectionToRestore = current;
+                    selectionToRestore = selection;
                 }
                 else
                 {
@@ -247,13 +247,16 @@ namespace HHG.UISystem.Runtime
                 }
             }
 
-            if (rememberSelection && selectionToRemember)
+            if (!selection || !this.IsChild(selection))
             {
-                selectionToRemember.Select();
-            }
-            else if (select)
-            {
-                select.Select();
+                if (rememberSelection && selectionToRemember)
+                {
+                    selectionToRemember.Select();
+                }
+                else if (select)
+                {
+                    select.Select();
+                }
             }
         }
 
@@ -263,11 +266,9 @@ namespace HHG.UISystem.Runtime
 
             if (rememberSelection)
             {
-                if (EventSystem.current.currentSelectedGameObject &&
-                    EventSystem.current.currentSelectedGameObject.TryGetComponent(out Selectable current) &&
-                    current.GetComponentInParent<UI>(true) == this)
+                if (EventSystem.current.TryGetCurrentSelection(out Selectable selection) && this.IsChild(selection))
                 {
-                    selectionToRemember = current;
+                    selectionToRemember = selection;
                 }
                 else
                 {
