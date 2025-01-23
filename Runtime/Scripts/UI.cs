@@ -123,6 +123,7 @@ namespace HHG.UISystem.Runtime
             map.Add(SubjectId, this);
             rectTransform = GetComponent<RectTransform>();
             canvasGroup = GetComponent<CanvasGroup>();
+            canvasGroup.interactable = false;
             root = this.GetTopmostComponent<UI>();
             parent = transform.parent.GetComponentInParent<UI>();
 
@@ -536,6 +537,7 @@ namespace HHG.UISystem.Runtime
                     children[i].UnfocusInternal(true);
                 }
             }
+
             while (watch.Count > 0 && watch.Any(child => child.IsUnfocusing))
             {
                 yield return new WaitForEndOfFrame();
