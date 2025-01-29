@@ -30,6 +30,14 @@ namespace HHG.UISystem.Runtime
             Unfocusing
         }
 
+        [System.Flags]
+        public enum Options
+        {
+            RememberSection = 1 << 0,
+            ForgetSelectionOnClose = 1 << 1,
+            RestorePreviousSelection = 1 << 2
+        }
+
         public object Id { get; } = null;
         public SubjectId SubjectId => new SubjectId(GetType(), Id);
         public OpenState CurrentState => state;
@@ -55,8 +63,12 @@ namespace HHG.UISystem.Runtime
 
         [SerializeField] protected bool center;
         [SerializeField, FormerlySerializedAs("SelectOnFocus")] protected Selectable select;
-        [SerializeField] protected bool rememberSelection;
-        [SerializeField] protected bool restoreSelection;
+        // TODO: Deprecate these
+        [SerializeField, HideInInspector] protected bool rememberSelection;
+        [SerializeField, HideInInspector] protected bool resetSelectionOnClose;
+        [SerializeField, HideInInspector] protected bool restoreSelection;
+        // END_TODO
+        [SerializeField] protected Options options;
         [SerializeField] protected OpenState state;
         [SerializeField] protected FocusState focus;
         [SerializeField] protected bool backEnabled = true;
@@ -120,6 +132,8 @@ namespace HHG.UISystem.Runtime
 
         protected virtual void Awake()
         {
+            SyncOptions();
+
             map.Add(SubjectId, this);
             rectTransform = GetComponent<RectTransform>();
             canvasGroup = GetComponent<CanvasGroup>();
@@ -228,6 +242,11 @@ namespace HHG.UISystem.Runtime
         protected virtual void OnClose()
         {
             canvasGroup.alpha = 0f;
+
+            if (options.HasFlag(Options.ForgetSelectionOnClose))
+            {
+                ResetSelection();
+            }
         }
 
         protected virtual void OnFocus()
@@ -236,7 +255,7 @@ namespace HHG.UISystem.Runtime
 
             Selectable selection = EventSystem.current.GetCurrentSelectable();
 
-            if (restoreSelection)
+            if (options.HasFlag(Options.RestorePreviousSelection))
             {
                 if (selection && !this.IsChild(selection))
                 {
@@ -250,7 +269,7 @@ namespace HHG.UISystem.Runtime
 
             if (!selection || !this.IsChild(selection))
             {
-                if (rememberSelection && selectionToRemember)
+                if (options.HasFlag(Options.RememberSection) && selectionToRemember)
                 {
                     selectionToRemember.Select();
                 }
@@ -265,7 +284,7 @@ namespace HHG.UISystem.Runtime
         {
             canvasGroup.interactable = false;
 
-            if (rememberSelection)
+            if (options.HasFlag(Options.RememberSection))
             {
                 if (EventSystem.current.TryGetCurrentSelection(out Selectable selection) && this.IsChild(selection))
                 {
@@ -552,6 +571,27 @@ namespace HHG.UISystem.Runtime
             animator.ResetTrigger("Unfocus");
         }
 
+        private void SyncOptions()
+        {
+            if (rememberSelection)
+            {
+                rememberSelection = false;
+                options |= Options.RememberSection;
+            }
+
+            if (resetSelectionOnClose)
+            {
+                resetSelectionOnClose = false;
+                options |= Options.ForgetSelectionOnClose;
+            }
+
+            if (restoreSelection)
+            {
+                restoreSelection = false;
+                options |= Options.RestorePreviousSelection;
+            }
+        }
+
         protected virtual void OnDestroy()
         {
             // Make sure the map contains this UI instance
@@ -560,6 +600,11 @@ namespace HHG.UISystem.Runtime
             {
                 map.Remove(SubjectId);
             }
+        }
+
+        protected virtual void OnValidate()
+        {
+            SyncOptions();
         }
     }
 
