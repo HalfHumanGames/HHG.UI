@@ -35,7 +35,13 @@ namespace HHG.UISystem.Runtime
         {
             RememberSection = 1 << 0,
             ForgetSelectionOnClose = 1 << 1,
-            RestorePreviousSelection = 1 << 2
+            RestorePreviousSelection = 1 << 2,
+
+            // This prevents Unity from serializing an enum with all
+            // of the currently available flags enabled as -1, which
+            // means any new flags added at a later time would also
+            // become enabled by default, which we do not want.
+            _ = 1 << 31
         }
 
         public object Id { get; } = null;
