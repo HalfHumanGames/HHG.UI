@@ -3,6 +3,7 @@ using HHG.UI.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -63,7 +64,14 @@ namespace HHG.UISystem.Runtime
 
         private static void Back(InputAction.CallbackContext ctx)
         {
-            if (Current && Current.backEnabled)
+            GameObject current = EventSystem.current.currentSelectedGameObject;
+
+            // Do not go back if inside of a dropdown
+            bool isDropdown = 
+                current != null && 
+                current.transform.parent.gameObject.TryGetComponentInParent<TMP_Dropdown>(out _, true);
+
+            if (Current && Current.backEnabled && !isDropdown)
             {
                 // Use temp since after we pop, current
                 // can be null if the stack size is 1
