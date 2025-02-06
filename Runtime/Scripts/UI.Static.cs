@@ -14,11 +14,17 @@ namespace HHG.UISystem.Runtime
 {
     public partial class UI
     {
-        public static ActionEvent OnAnyOpened = new ActionEvent();
-        public static ActionEvent OnAnyClosed = new ActionEvent();
-        public static ActionEvent OnAnyFocused = new ActionEvent();
-        public static ActionEvent OnAnyUnfocused = new ActionEvent();
-        public static ActionEvent OnBack = new ActionEvent();
+        public static ActionEvent OnAnyOpened => onAnyOpened;
+        public static ActionEvent OnAnyClosed => onAnyClosed;
+        public static ActionEvent OnAnyFocused => onAnyFocused;
+        public static ActionEvent OnAnyUnfocused => onAnyUnfocused;
+        public static ActionEvent OnBack => onBack;
+
+        private static ActionEvent onAnyOpened = new ActionEvent();
+        private static ActionEvent onAnyClosed = new ActionEvent();
+        private static ActionEvent onAnyFocused = new ActionEvent();
+        private static ActionEvent onAnyUnfocused = new ActionEvent();
+        private static ActionEvent onBack = new ActionEvent();
 
         private static Dictionary<SubjectId, UI> map = new Dictionary<SubjectId, UI>();
         private static Dictionary<SubjectId, IDataProvider> dataProviders = new Dictionary<SubjectId, IDataProvider>();

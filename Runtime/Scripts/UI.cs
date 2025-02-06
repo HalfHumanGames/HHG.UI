@@ -66,6 +66,10 @@ namespace HHG.UISystem.Runtime
         public RectTransform RectTransform => rectTransform;
         public Animator Animator => animator;
         public CanvasGroup CanvasGroup => canvasGroup;
+        public ActionEvent OnOpened => onOpened;
+        public ActionEvent OnClosed => onClosed;
+        public ActionEvent OnFocused => onFocused;
+        public ActionEvent OnUnfocused => onUnfocused;
 
         [SerializeField] protected bool center;
         [SerializeField, FormerlySerializedAs("SelectOnFocus")] protected Selectable select;
@@ -79,10 +83,10 @@ namespace HHG.UISystem.Runtime
         [SerializeField] protected FocusState focus;
         [SerializeField] protected bool backEnabled = true;
 
-        public ActionEvent OnOpened = new ActionEvent();
-        public ActionEvent OnClosed = new ActionEvent();
-        public ActionEvent OnFocused = new ActionEvent();
-        public ActionEvent OnUnfocused = new ActionEvent();
+        [SerializeField, FormerlySerializedAs("OnOpened")] private ActionEvent onOpened = new ActionEvent();
+        [SerializeField, FormerlySerializedAs("OnClosed")] private ActionEvent onClosed = new ActionEvent();
+        [SerializeField, FormerlySerializedAs("OnFocused")] private ActionEvent onFocused = new ActionEvent();
+        [SerializeField, FormerlySerializedAs("OnUnfocused")] private ActionEvent onUnfocused = new ActionEvent();
 
         private UI root;
         private UI parent;
@@ -343,7 +347,7 @@ namespace HHG.UISystem.Runtime
             state = OpenState.Open;
 
             OnOpen();
-            OnOpened.Invoke(this);
+            onOpened.Invoke(this);
             OnAnyOpened.Invoke(this);
         }
 
@@ -394,7 +398,7 @@ namespace HHG.UISystem.Runtime
 
             ResetAllTriggers();
             OnClose();
-            OnClosed.Invoke(this);
+            onClosed.Invoke(this);
             OnAnyClosed.Invoke(this);
         }
 
@@ -466,7 +470,7 @@ namespace HHG.UISystem.Runtime
 
             ResetAllTriggers();
             OnFocus();
-            OnFocused.Invoke(this);
+            onFocused.Invoke(this);
             OnAnyFocused.Invoke(this);
         }
 
@@ -516,7 +520,7 @@ namespace HHG.UISystem.Runtime
             focus = FocusState.Unfocused;
 
             OnUnfocus();
-            OnUnfocused.Invoke(this);
+            onUnfocused.Invoke(this);
             OnAnyUnfocused.Invoke(this);
         }
 

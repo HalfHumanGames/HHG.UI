@@ -8,7 +8,6 @@ namespace HHG.UISystem.Runtime
     public class UIButton : MonoBehaviour
     {
         public Button Button => button;
-
         public ActionEvent OnClick => onClick;
 
         [SerializeField] private ActionEvent onClick = new ActionEvent();
