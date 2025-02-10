@@ -10,6 +10,7 @@ namespace HHG.UISystem.Runtime
         public Button Button => button;
         public ActionEvent OnClick => onClick;
 
+        [SerializeField] private bool singleUse;
         [SerializeField] private ActionEvent onClick = new ActionEvent();
 
         private Button button;
@@ -17,7 +18,17 @@ namespace HHG.UISystem.Runtime
         private void Awake()
         {
             button = GetComponent<Button>();
-            button.onClick.AddListener(() => onClick.Invoke(this));
+            button.onClick.AddListener(OnButtonClick);
+        }
+
+        private void OnButtonClick()
+        {
+            onClick.Invoke(this);
+
+            if (singleUse)
+            {
+                button.enabled = false;
+            }
         }
     }
 }

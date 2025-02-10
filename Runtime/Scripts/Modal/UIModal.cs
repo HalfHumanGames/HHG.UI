@@ -26,6 +26,7 @@ namespace HHG.UISystem.Runtime
                 {
                     ModalButton modalButton = modal.Buttons[i];
                     button.GetComponentInChildren<TextMeshProUGUI>().text = modal.Buttons[i].Text;
+                    button.Button.interactable = true;
                     button.OnClick.RemoveAllListeners();
                     button.OnClick.Invoked += () => modalButton.OnClick.Invoke(button);
                     button.gameObject.SetActive(true);
