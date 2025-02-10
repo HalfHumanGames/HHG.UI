@@ -244,6 +244,26 @@ namespace HHG.UISystem.Runtime
             }
         }
 
+        protected virtual void OnWillOpen()
+        {
+
+        }
+
+        protected virtual void OnWillClose()
+        {
+
+        }
+
+        protected virtual void OnWillFocus()
+        {
+
+        }
+
+        protected virtual void OnWillUnfocus()
+        {
+
+        }
+
         protected virtual void OnOpen()
         {
             canvasGroup.alpha = 1f;
@@ -340,6 +360,7 @@ namespace HHG.UISystem.Runtime
             if (IsOpen) yield break;
 
             RebuildLayout();
+            OnWillOpen();
 
             state = OpenState.Opening;
             yield return OpenSelf(instant);
@@ -390,6 +411,8 @@ namespace HHG.UISystem.Runtime
         private IEnumerator CloseCoroutine(bool instant = false)
         {
             if (IsClosed) yield break;
+
+            OnWillClose();
 
             state = OpenState.Closing;
             yield return CloseChildren(instant);
@@ -463,6 +486,8 @@ namespace HHG.UISystem.Runtime
         {
             if (IsClosed || IsFocused) yield break;
 
+            OnWillFocus();
+
             focus = FocusState.Focusing;
             yield return FocusSelf(instant);
             yield return FocusChildren(instant);
@@ -513,6 +538,8 @@ namespace HHG.UISystem.Runtime
         private IEnumerator UnfocusCoroutine(bool instant = false)
         {
             if (IsClosed || IsUnfocused) yield break;
+
+            OnWillUnfocus();
 
             focus = FocusState.Unfocusing;
             yield return UnfocusSelf(instant);
