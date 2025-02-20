@@ -27,7 +27,7 @@ namespace HHG.UISystem.Runtime
 
             if (singleUse)
             {
-                button.enabled = false;
+                button.interactable = false;
             }
         }
     }
