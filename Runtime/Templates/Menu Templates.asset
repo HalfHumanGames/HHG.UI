@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7eb83bcac3e93408ff437409210904, type: 3}
+  m_Name: Menu Templates
+  m_EditorClassIdentifier: 
+  enabled: 1
+  path: GameObject/HHG/UI/Menus
+  templates:
+  - {fileID: 4587620867226953614, guid: e29fc92a7783f1a47964134e690ac7c3, type: 3}
+  - {fileID: 6161924530348459932, guid: 0779f09419df56f45b963e021527821b, type: 3}
+  - {fileID: 482960144805000019, guid: aab14c90c2cbe24438b1ec7039c99f1e, type: 3}
+  - {fileID: 1292086423220715469, guid: ad4e258a2612b314cac13fb2dab81130, type: 3}
+  - {fileID: 6346435590381448317, guid: 715456300b82891419b8a8f02d35b0be, type: 3}
+  - {fileID: 6352894211022378014, guid: 409bf3e3d56324347825af0ef80f99ef, type: 3}
+  - {fileID: 6285241725754062314, guid: 9c02ba9fe635d77438c7a1e8f6d7b5b1, type: 3}
+  - {fileID: 6843809861529254711, guid: 8648a87ecf06fb24ea05196990908622, type: 3}
+  - {fileID: 4428574663600564326, guid: e65fd22a589ee4649ba467a7a85f6715, type: 3}
+  - {fileID: 6252234903664547011, guid: 6f17771cd7d438842a37c724569f66b4, type: 3}
+  - {fileID: 8947677870776523023, guid: 83f904ca22779fc46b43a326bc3da7ea, type: 3}
