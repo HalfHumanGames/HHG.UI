@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HHG.UISystem.Runtime
+namespace HHG.UI.Runtime
 {
     [Serializable]
     public class LoadingScreen
