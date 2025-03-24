@@ -1,13 +1,13 @@
 {
-  "name": "com.halfhumangames.uisystem",
+  "name": "com.halfhumangames.ui",
   "version": "1.0.0",
-  "displayName": "HHG - UI System",
+  "displayName": "HHG - UI",
   "description": "UI system for Unity",
   "unity": "2020.3",
   "unityRelease": "6f1",
-  "documentationUrl": "https://github.com/HalfHumanGames/HHG.UISystem/blob/main/README.md",
-  "changelogUrl": "https://github.com/HalfHumanGames/HHG.UISystem/blob/main/CHANGELOG.md",
-  "licensesUrl": "https://github.com/HalfHumanGames/HHG.UISystem/blob/main/LICENSE",
+  "documentationUrl": "https://github.com/HalfHumanGames/HHG.UI/blob/main/README.md",
+  "changelogUrl": "https://github.com/HalfHumanGames/HHG.UI/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/HalfHumanGames/HHG.UI/blob/main/LICENSE",
   "keywords": [
     "UI",
     "User interface",
