@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace HHG.UISystem.Runtime
+namespace HHG.UI.Runtime
 {
     [Serializable]
     public class Notification

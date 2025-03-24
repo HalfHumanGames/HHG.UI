@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace HHG.UISystem.Runtime
+namespace HHG.UI.Runtime
 {
     public class UINotification : UI<Notification>
     {
@@ -11,18 +11,20 @@ namespace HHG.UISystem.Runtime
         [SerializeField] private TextMeshProUGUI label;
         [SerializeField] private Image background;
 
-        public override void Refresh(Notification notification)
+        public override void Refresh(Notification data)
         {
-            label.text = notification.Text;
+            base.Refresh(data);
 
-            if (notification.SetTextColor)
+            label.text = data.Text;
+
+            if (data.SetTextColor)
             {
-                label.color = notification.TextColor;
+                label.color = data.TextColor;
             }
 
-            if (notification.SetBackgroundColor)
+            if (data.SetBackgroundColor)
             {
-                background.color = notification.BackgroundColor;
+                background.color = data.BackgroundColor;
             }
 
             this.AfterRealtime(duration, _ => Close());
