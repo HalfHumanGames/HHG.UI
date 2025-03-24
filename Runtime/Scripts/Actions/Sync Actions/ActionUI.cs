@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace HHG.UISystem.Runtime
+namespace HHG.UI.Runtime
 {
     [Serializable]
     public class ActionUI : IAction
@@ -39,7 +39,7 @@ namespace HHG.UISystem.Runtime
                     UI.GoTo(type);
                     break;
                 case Action.Push:
-                    UI.Push(type);
+                    UI.Push(type: type);
                     break;
                 case Action.Pop:
                     UI.Pop();

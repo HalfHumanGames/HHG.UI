@@ -4,12 +4,12 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace HHG.UISystem.Runtime
+namespace HHG.UI.Runtime
 {
     [Serializable]
     public class ActionUILoadSceneAsync : IActionAsync
     {
-        [SerializeField, Dropdown] private SceneNameAsset sceneName;
+        [SerializeField, Dropdown] private SerializedScene sceneName;
         [SerializeField, Dropdown] private LoadingScreenAsset loadingScreen;
 
         private Action onLoaded;
@@ -21,7 +21,7 @@ namespace HHG.UISystem.Runtime
 
         }
 
-        public ActionUILoadSceneAsync(SceneNameAsset sceneName, LoadingScreenAsset loadingScreen = null, Action onLoaded = null)
+        public ActionUILoadSceneAsync(SerializedScene sceneName, LoadingScreenAsset loadingScreen = null, Action onLoaded = null)
         {
             this.sceneName = sceneName;
             this.loadingScreen = loadingScreen;
