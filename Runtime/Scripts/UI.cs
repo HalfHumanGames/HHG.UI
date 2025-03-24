@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace HHG.UISystem.Runtime
+namespace HHG.UI.Runtime
 {
     [RequireComponent(typeof(CanvasRenderer))]
     [RequireComponent(typeof(CanvasGroup))]
@@ -36,15 +36,10 @@ namespace HHG.UISystem.Runtime
             RememberSection = 1 << 0,
             ForgetSelectionOnClose = 1 << 1,
             RestorePreviousSelection = 1 << 2,
-
-            // This prevents Unity from serializing an enum with all
-            // of the currently available flags enabled as -1, which
-            // means any new flags added at a later time would also
-            // become enabled by default, which we do not want.
-            _ = 1 << 31
+            All = -1
         }
 
-        public object Id { get; } = null;
+        public object Id { get; set; } = null;
         public SubjectId SubjectId => new SubjectId(GetType(), Id);
         public OpenState CurrentState => state;
         public FocusState CurrentFocus => focus;
@@ -72,15 +67,12 @@ namespace HHG.UISystem.Runtime
         public ActionEvent OnUnfocused => onUnfocused;
 
         [SerializeField] protected bool center;
+        [SerializeField] protected string customId;
         [SerializeField, FormerlySerializedAs("SelectOnFocus")] protected Selectable select;
-        // TODO: Deprecate these
-        [SerializeField, HideInInspector] protected bool rememberSelection;
-        [SerializeField, HideInInspector] protected bool resetSelectionOnClose;
-        [SerializeField, HideInInspector] protected bool restoreSelection;
-        // END_TODO
-        [SerializeField] protected Options options;
-        [SerializeField] protected OpenState state;
-        [SerializeField] protected FocusState focus;
+
+        [SerializeField] protected Options options = Options.All;
+        [SerializeField] protected OpenState state = OpenState.Open;
+        [SerializeField] protected FocusState focus = FocusState.Focused;
         [SerializeField] protected bool backEnabled = true;
 
         [SerializeField, FormerlySerializedAs("OnOpened")] private ActionEvent onOpened = new ActionEvent();
@@ -100,7 +92,6 @@ namespace HHG.UISystem.Runtime
         private bool hasUnfocusAnimation;
         private OpenState previousState;
         private FocusState previousFocus;
-        private bool isLayoutDirty;
 
         private bool wasOpen { get => previousState == OpenState.Open; set => previousState = value ? OpenState.Open : OpenState.Closed; }
         private bool wasClosed { get => previousState == OpenState.Closed; set => previousState = value ? OpenState.Closed : OpenState.Open; }
@@ -127,7 +118,11 @@ namespace HHG.UISystem.Runtime
         public Coroutine Unfocus() => UnfocusInternal(false);
         public Coroutine Unfocus(bool instant) => UnfocusInternal(instant);
 
-        public void RebuildLayout() => isLayoutDirty = true;
+        [ContextMenu("Push")]
+        public Coroutine Push() => Push(GetType(), Id, false);
+        public Coroutine Push(bool instant) => Push(GetType(), Id, instant);
+
+        public void MarkLayoutForRebuild() => rectTransform.MarkLayoutForRebuild();
 
         public void EnableBack(bool val) => backEnabled = val;
         public void EnableBack() => backEnabled = true;
@@ -142,7 +137,10 @@ namespace HHG.UISystem.Runtime
 
         protected virtual void Awake()
         {
-            SyncOptions();
+            if (!string.IsNullOrEmpty(customId))
+            {
+                Id = customId;
+            }
 
             map.Add(SubjectId, this);
             rectTransform = GetComponent<RectTransform>();
@@ -197,16 +195,16 @@ namespace HHG.UISystem.Runtime
 
         protected virtual void Update()
         {
-            if (isLayoutDirty)
-            {
-                isLayoutDirty = false;
-                RectTransform.RebuildLayout();
-            }
+ 
         }
 
         private void InitializeRoot()
         {
             children.ForEach(child => child.InitializeChild());
+
+            bool instant = state == OpenState.Open || state == OpenState.Closed;
+
+            object data = this is UIT uiT && uiT.WeakAsset != null ? uiT.WeakAsset.WeakData : null;
 
             switch (state)
             {
@@ -214,13 +212,13 @@ namespace HHG.UISystem.Runtime
                 case OpenState.Closed:
                     state = OpenState.Open;
                     focus = FocusState.Unfocused;
-                    CloseInternal(true);
+                    CloseInternal(instant);
                     break;
                 case OpenState.Opening:
                 case OpenState.Open:
                     state = OpenState.Closed;
                     focus = FocusState.Unfocused;
-                    Push(GetType(), Id, true);
+                    Push(GetType(), Id, data, instant);
                     break;
             }
         }
@@ -359,7 +357,7 @@ namespace HHG.UISystem.Runtime
         {
             if (IsOpen) yield break;
 
-            RebuildLayout();
+            MarkLayoutForRebuild();
             OnWillOpen();
 
             state = OpenState.Opening;
@@ -608,56 +606,42 @@ namespace HHG.UISystem.Runtime
             animator.ResetTrigger("Unfocus");
         }
 
-        private void SyncOptions()
-        {
-            if (rememberSelection)
-            {
-                rememberSelection = false;
-                options |= Options.RememberSection;
-            }
-
-            if (resetSelectionOnClose)
-            {
-                resetSelectionOnClose = false;
-                options |= Options.ForgetSelectionOnClose;
-            }
-
-            if (restoreSelection)
-            {
-                restoreSelection = false;
-                options |= Options.RestorePreviousSelection;
-            }
-        }
-
         protected virtual void OnDestroy()
         {
-            // Make sure the map contains this UI instance
-            // otherwise you may remove other instances
-            if (map.ContainsValue(this))
-            {
-                map.Remove(SubjectId);
-            }
+            map.Remove(SubjectId);
         }
 
         protected virtual void OnValidate()
         {
-            SyncOptions();
+            
         }
     }
 
     public abstract class UIT : UI, IRefreshableWeak
     {
+        public abstract UIAssetT WeakAsset { get; }
+
         public abstract void RefreshWeak(object data);
     }
 
     public abstract class UI<T> : UIT, IRefreshable<T>
     {
-        public override void RefreshWeak(object model)
+        public override UIAssetT WeakAsset => asset;
+        public UIAsset<T> Asset => asset;
+        
+        [SerializeField] private UIAsset<T> asset;
+
+        protected T data;
+
+        public override sealed void RefreshWeak(object data)
         {
-            Refresh((T)model);
-            RebuildLayout();
+            Refresh((T)data);
         }
 
-        public abstract void Refresh(T model);
+        public virtual void Refresh(T data)
+        {
+            this.data = data;
+            MarkLayoutForRebuild();
+        }
     }
 }

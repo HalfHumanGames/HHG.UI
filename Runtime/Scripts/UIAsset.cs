@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace HHG.UISystem.Runtime
+namespace HHG.UI.Runtime
 {
     [CreateAssetMenu(fileName = "UI", menuName = "HHG/Assets/Variable/UI")]
     public class UIAsset : StringAsset
