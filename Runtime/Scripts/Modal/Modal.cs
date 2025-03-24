@@ -1,16 +1,36 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace HHG.UISystem.Runtime
+namespace HHG.UI.Runtime
 {
-    [Serializable]
+    [System.Serializable]
     public class Modal
     {
-        [FormerlySerializedAs("header")] public string Header;
-        [FormerlySerializedAs("description"), TextArea] public string Description;
-        [FormerlySerializedAs("backEnabled")] public bool BackEnabled = true;
-        [FormerlySerializedAs("buttons")] public List<ModalButton> Buttons = new List<ModalButton>();
+        public string Header;
+        [TextArea] public string Description;
+        public bool BackEnabled = true;
+        public List<ModalButton> Buttons = new List<ModalButton>();
+        public int Selection;
+
+        public Modal()
+        {
+
+        }
+
+        public Modal(string header, string description, bool backEnabled, List<ModalButton> buttons)
+        {
+            Header = header;
+            Description = description;
+            BackEnabled = backEnabled;
+            Buttons = buttons;
+        }
+
+        public Modal(string header, string description, bool backEnabled, IEnumerable<ModalButton> buttons)
+        {
+            Header = header;
+            Description = description;
+            BackEnabled = backEnabled;
+            Buttons.AddRange(buttons);
+        }
     }
 }
