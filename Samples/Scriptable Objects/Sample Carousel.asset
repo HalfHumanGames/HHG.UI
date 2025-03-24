@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47b7584d28911a44bb96300e5352d932, type: 3}
+  m_Name: Sample Carousel
+  m_EditorClassIdentifier: 
+  value: 
+  prefab: {fileID: 0}
+  data:
+    Items:
+    - Sprites:
+      - {fileID: 21300000, guid: 9662eb0a6280e1e4d9fc06ff25ba37fa, type: 3}
+      Texts:
+      - Once upon a time in a kingdom far away...
+    - Sprites:
+      - {fileID: 21300000, guid: 86a15b40fb914b94a9c9e4df2491cb22, type: 3}
+      Texts:
+      - A valiant knight fought with...
+    - Sprites:
+      - {fileID: 21300000, guid: 4483c585c3858f94c951a1198b1bf584, type: 3}
+      Texts:
+      - A big bad dragon...

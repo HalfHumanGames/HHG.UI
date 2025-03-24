@@ -1,0 +1,30 @@
+# Core Team
+Alex Mercer | Game Design, Programming  
+Samantha Hayes | Art, Animation  
+Jordan Lee | Programming, UI/UX  
+Emily Carter | Writing, Narrative Design  
+Ryan Smith | Sound Design, Music  
+Mia Thompson | Art, Concept Design  
+
+# Additional Development  
+Daniel Kim | Level Design, Scripting  
+Olivia White | Animation, VFX  
+Ethan Foster | AI Programming  
+Sophia Green | UI/UX, Accessibility  
+
+# Quality Assurance & Testing  
+Lucas Bennett  
+Isabella Martinez  
+Noah Collins  
+Ava Robinson  
+Ethan Mitchell  
+Chloe Edwards  
+James Turner  
+Lily Parker  
+Benjamin Scott  
+Zoe Wilson  
+Nathan Hall  
+Emma Lewis  
+
+# Special Thanks  
+To our friends, families, and all our supporters!
