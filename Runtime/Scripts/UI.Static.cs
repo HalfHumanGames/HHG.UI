@@ -8,7 +8,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace HHG.UI.Runtime
 {
@@ -107,40 +106,43 @@ namespace HHG.UI.Runtime
 
         private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            EventSystem current = EventSystem.current;
+            // The current input system's action asset can
+            // change for multiplayer games, so instead of
+            // subscribing to the asset's event, we subscribe
+            // to this global event and check if it is the 
+            // modules current input actions asset
+            InputSystem.onActionChange -= OnActionChange;
+            InputSystem.onActionChange += OnActionChange;
+        }
 
-            if (current != null)
+        private static void OnActionChange(object obj, InputActionChange change)
+        {
+            if (CanGoBack(obj, change))
             {
-                InputSystemUIInputModule module = current.currentInputModule as InputSystemUIInputModule ?? current.GetComponent<InputSystemUIInputModule>();
-
-                if (module != null)
-                {
-                    if (module.cancel.action != back)
-                    {
-                        if (back != null)
-                        {
-                            back.performed -= Back;
-                        }
-
-                        back = module.cancel.action;
-                        back.performed += Back;
-                    }
-                }
+                Back();
             }
         }
 
-        private static void Back(InputAction.CallbackContext ctx)
+        private static bool CanGoBack(object obj, InputActionChange change)
+        {
+            return change == InputActionChange.ActionPerformed &&
+                obj is InputAction action &&
+                EventSystem.current.currentInputModule is InputSystemUIInputModule module &&
+                action == module.cancel.action;
+        }
+
+        private static void Back()
         {
             if (IsInDropdown())
             {
                 // Do nothing since cancel closes dropdowns
-            } 
+            }
             else if (IsInInputField(out TMP_InputField inputField))
             {
                 // Unfocus since cancel does NOT close dropdowns
                 inputField.DeactivateInputField();
             }
-            else if (Current && Current.backEnabled)
+            else if (Current && Current.backEnabled && !Current.IsTransitioning)
             {
                 // Use temp since after we pop, current
                 // can be null if the stack size is 1
@@ -190,7 +192,10 @@ namespace HHG.UI.Runtime
                     data = dataProvider.GetDataWeak(data);
                 }
 
-                refreshable.RefreshWeak(data);
+                if (data != null)
+                {
+                    refreshable.RefreshWeak(data);
+                }
             }
         }
 
