@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace HHG.UI.Runtime
 {
-    public class UIInputFieldModal : UIModal<InputFieldModal>
+    public class UIInputFieldModal : UIModal<InputFieldModalData>
     {
         public string InputFieldText => inputField.text;
 
         [SerializeField] private TMP_InputField inputField;
 
-        public override void Refresh(InputFieldModal data)
+        public override void Refresh(InputFieldModalData data)
         {
             base.Refresh(data);
 
