@@ -7,12 +7,12 @@ using UnityEngine.UI;
 
 namespace HHG.UI.Runtime
 {
-    public class UILoadingScreen : UI<LoadingScreen>
+    public class UILoadingScreen : UI<LoadingScreenData>
     {
         [SerializeField] private List<Image> images = new List<Image>();
         [SerializeField] private List<TextMeshProUGUI> labels = new List<TextMeshProUGUI>();
 
-        public override void Refresh(LoadingScreen data)
+        public override void Refresh(LoadingScreenData data)
         {
             base.Refresh(data);
 
@@ -20,25 +20,26 @@ namespace HHG.UI.Runtime
             {
                 if (i < data.Sprites.Count)
                 {
+                    images[i].enabled = true;
                     images[i].sprite = data.Sprites[i];
-                    images[i].color = Color.white;
                     images[i].SetNativeSize();
                 }
                 else
                 {
-                    images[i].color = Color.clear;
+                    images[i].enabled = false;
                 }
             }
 
             for (int i = 0; i < labels.Count; i++)
             {
-                if (i < data.Text.Count)
+                if (i < data.Texts.Count)
                 {
-                    labels[i].text = data.Text[i];
+                    labels[i].enabled = true;
+                    labels[i].text = data.Texts[i];
                 }
                 else
                 {
-                    labels[i].text = string.Empty;
+                    labels[i].enabled = false;
                 }
             }
         }

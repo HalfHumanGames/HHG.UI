@@ -9,11 +9,10 @@ namespace HHG.UI.Runtime
     [Serializable]
     public class ActionUILoadSceneAsync : IActionAsync
     {
-        [SerializeField, Dropdown] private SerializedScene sceneName;
-        [SerializeField, Dropdown] private LoadingScreenAsset loadingScreen;
+        [SerializeField] private SerializedScene sceneName;
+        [SerializeField] private LoadingScreenAsset loadingScreen;
 
         private Action onLoaded;
-        private LoadingScreen data;
         private float timestamp;
 
         public ActionUILoadSceneAsync()
@@ -40,9 +39,8 @@ namespace HHG.UI.Runtime
             if (UI.TryGet(out UILoadingScreen ui))
             {
                 // Cache data in case it is dynamic and changes later
-                data = loadingScreen.Data;
-                ui.Refresh(data);
-                yield return ui.Open();
+                ui.Refresh(loadingScreen.Data);
+                yield return ui.Push();
                 timestamp = Time.time;
                 SceneManager.sceneLoaded -= OnSceneLoaded;
                 SceneManager.sceneLoaded += OnSceneLoaded;
@@ -72,14 +70,15 @@ namespace HHG.UI.Runtime
             {
                 // Refresh in case not using persistent loading screen
                 // Used cache data in case it is dynamic and has changed
-                ui.Refresh(data);
+                ui.Refresh(loadingScreen.Data);
 
                 if (wait > 0f)
                 {
                     yield return new WaitForSecondsRealtime(wait);
                 }
 
-                yield return ui.Close();
+                // Do not need since loading screens now auto-close on start
+                //yield return ui.Close();
             }
         }
     }
