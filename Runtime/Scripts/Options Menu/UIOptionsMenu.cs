@@ -1,5 +1,6 @@
 using HHG.Common.Runtime;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
@@ -67,6 +68,9 @@ namespace HHG.UI.Runtime
             // Do in start in case it initialized
             // before this script initializes
             tabNavigation.Initialize();
+
+            // Select the first tab by default
+            select = tabNavigation.Tabs.First().Button;
         }
 
         private void Initialize()
