@@ -24,22 +24,22 @@ namespace HHG.UI.Runtime
         [SerializeField] private Button deleteSaveButton;
         [SerializeField] private Button createSaveButton;
 
-        private SaveFileAssetBase saveFile;
+        private SaveFileAssetBase saveFileAsset;
         private int saveFileIndex;
         private string saveFileName;
         private bool saveFileExists;
 
         public void Refresh()
         {
-            Refresh(saveFile, saveFileIndex);
+            Refresh(saveFileAsset, saveFileIndex);
         }
 
         public void Refresh(SaveFileAssetBase newSaveFile, int newSaveFileIndex)
         {
-            saveFile = newSaveFile;
+            saveFileAsset = newSaveFile;
             saveFileIndex = newSaveFileIndex;
             saveFileName = string.Format(saveFileNameFormat, saveFileIndex);
-            saveFileExists = saveFile.Exists(saveFileName);
+            saveFileExists = saveFileAsset.Exists(saveFileName);
             gameObject.name = saveFileName;
 
             string saveName = string.Empty;
@@ -48,11 +48,11 @@ namespace HHG.UI.Runtime
 
             if (saveFileExists)
             {
-                saveFile.Load(saveFileName);
+                saveFileAsset.Load(saveFileName);
 
-                saveName = saveFile.DisplayName;
-                saveDate = saveFile.LastSavedFormatted;
-                saveInfo = saveFile.ProgressInfo;
+                saveName = saveFileAsset.DisplayName;
+                saveDate = saveFileAsset.LastSavedFormatted;
+                saveInfo = saveFileAsset.ProgressInfo;
 
                 Enumerable.Empty<Selectable>().
                     Append(loadSaveButton).
@@ -114,29 +114,29 @@ namespace HHG.UI.Runtime
 
         private void OnClickLoadSave()
         {
-            saveFile.Load(saveFileName);
-            SaveFileScene saveFileScene = saveFile.SaveFileScene;
+            saveFileAsset.Load(saveFileName);
+            SaveFileScene saveFileScene = saveFileAsset.SaveFileScene;
             SerializedScene scene = ConfigBase.Scenes.GetScene(saveFileScene);
             this.LoadScene(scene.SceneName);
         }
 
         private void OnClickRenameSave()
         {
-            saveFile.Load(saveFileName);
+            saveFileAsset.Load(saveFileName);
 
-            UI.Push(new InputFieldModal(
+            UI.Push(new InputFieldModalData(
 
                 "Enter New Name",
                 string.Empty,
-                saveFile.DisplayName,
+                saveFileAsset.DisplayName,
                 true,
                 new()
                 {
                     new ("Confirm", (button, ui) =>
                     {
-                        saveFile.Load(saveFileName);
-                        saveFile.DisplayName = (ui as UIInputFieldModal).InputFieldText;
-                        saveFile.Save();
+                        saveFileAsset.Load(saveFileName);
+                        saveFileAsset.DisplayName = (ui as UIInputFieldModal).InputFieldText;
+                        saveFileAsset.Save();
                         Refresh();
                         UI.Pop();
                     }),
@@ -150,15 +150,15 @@ namespace HHG.UI.Runtime
 
         private void OnClickDeleteSave()
         {
-            UI.Push(new Modal(
+            UI.Push(new ModalData(
                 "Confirm Delete",
                 "Are you sure you want to delete this save? All progress will be lost.",
                 true,
-                new() 
+                new()
                 {
                     new("Yes", () =>
                     {
-                        saveFile.Delete(saveFileName);
+                        saveFileAsset.Delete(saveFileName);
                         Refresh();
                         UI.Pop();
                     }) ,
@@ -173,20 +173,21 @@ namespace HHG.UI.Runtime
         private void OnClickCreateSave()
         {
 
-            UI.Push("Vertical", new Modal(
-
+            UI.Push("Vertical", new ModalData
+            (
                 "Select Difficulty",
                 string.Empty,
                 true,
-                ConfigBase.Difficulty.Difficulties.Select(difficulty => new ModalButton(
+                ConfigBase.Difficulty.Difficulties.Select(difficulty => new ButtonData
+                (
                     difficulty.DisplayName,
                     difficulty.Description,
                     (button, ui) =>
                     {
-                        saveFile.Load(saveFileName);
-                        saveFile.DisplayName = difficulty.DisplayName;
-                        saveFile.DifficultyIndex = (ui as UIModal).Selection;
-                        saveFile.Save();
+                        saveFileAsset.Load(saveFileName);
+                        saveFileAsset.DisplayName = difficulty.DisplayName;
+                        saveFileAsset.DifficultyIndex = (ui as UIModal).Selection;
+                        saveFileAsset.Save();
                         Refresh();
                         UI.Pop();
                     }
