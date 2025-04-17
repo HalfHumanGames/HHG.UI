@@ -171,6 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   center: 1
+  customId: 
   select: {fileID: 0}
   options: -1
   state: 2
@@ -178,42 +179,35 @@ MonoBehaviour:
   backEnabled: 0
   onOpened:
     actions: []
+    action:
+      rid: -2
   onClosed:
     actions: []
+    action:
+      rid: -2
   onFocused:
     actions: []
+    action:
+      rid: -2
   onUnfocused:
     actions: []
+    action:
+      rid: -2
   saveFileAsset: {fileID: 11400000, guid: 4d1ed164aa768d944a3c99a7d38cb501, type: 2}
-  isMidGameProperty: IsMidGame
-  newGameScene:
-    sceneReference: {fileID: 102900000, guid: 9424c827ccd688e49a33fc32c4d74560, type: 3}
-    sceneName: Start Screen
-    scenePath: Assets/com.halfhumangames.ui/Runtime/Templates/Scenes/Start Screen.unity
-    buildIndex: 0
-  midGameScene:
-    sceneReference: {fileID: 102900000, guid: 9424c827ccd688e49a33fc32c4d74560, type: 3}
-    sceneName: Start Screen
-    scenePath: Assets/com.halfhumangames.ui/Runtime/Templates/Scenes/Start Screen.unity
-    buildIndex: 0
-  hubGameScene:
-    sceneReference: {fileID: 102900000, guid: 9424c827ccd688e49a33fc32c4d74560, type: 3}
-    sceneName: Start Screen
-    scenePath: Assets/com.halfhumangames.ui/Runtime/Templates/Scenes/Start Screen.unity
-    buildIndex: 0
   saveSlotsMenu: {fileID: 0}
   optionsMenu: {fileID: 0}
   creditsMenu: {fileID: 0}
   playButton: {fileID: 9152734305929232422}
   continueButton: {fileID: 67077484317025046}
-  loadGameButton: {fileID: 2562699981349235122}
-  newGameButton: {fileID: 8785449726714374298}
+  saveSlotsButton: {fileID: 2562699981349235122}
   optionsButton: {fileID: 2488091192955360834}
   creditsButton: {fileID: 6437360685049529791}
   exitButton: {fileID: 1089260697266468842}
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!1 &6946365290915782891
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,7 +241,6 @@ RectTransform:
   - {fileID: 7120508601175687177}
   - {fileID: 2106106958433346361}
   - {fileID: 4486888756862380445}
-  - {fileID: 7221526923675805877}
   - {fileID: 4563081293186766445}
   - {fileID: 4936564134472844688}
   - {fileID: 1353893908456536005}
@@ -503,112 +496,6 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6056012977231838890, guid: e582a9d5faffc8c45823b62d395aa0d6,
     type: 3}
   m_PrefabInstance: {fileID: 3102501773349142156}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 15fe8a55b61d4084eab8146576be7f54, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1001 &3307727135003891248
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 8677904896623621117}
-    m_Modifications:
-    - target: {fileID: 1173970938208342092, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_text
-      value: New Game
-      objectReference: {fileID: 0}
-    - target: {fileID: 2205838145680815738, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2205838145680815738, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3273220195251326686, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_Name
-      value: New Game Button
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_AnchorMin.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: e582a9d5faffc8c45823b62d395aa0d6, type: 3}
---- !u!224 &7221526923675805877 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
-    type: 3}
-  m_PrefabInstance: {fileID: 3307727135003891248}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8785449726714374298 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6056012977231838890, guid: e582a9d5faffc8c45823b62d395aa0d6,
-    type: 3}
-  m_PrefabInstance: {fileID: 3307727135003891248}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -1009,7 +896,7 @@ PrefabInstance:
     - target: {fileID: 1173970938208342092, guid: e582a9d5faffc8c45823b62d395aa0d6,
         type: 3}
       propertyPath: m_text
-      value: Load Game
+      value: Save Slots
       objectReference: {fileID: 0}
     - target: {fileID: 2205838145680815738, guid: e582a9d5faffc8c45823b62d395aa0d6,
         type: 3}
@@ -1024,7 +911,7 @@ PrefabInstance:
     - target: {fileID: 3273220195251326686, guid: e582a9d5faffc8c45823b62d395aa0d6,
         type: 3}
       propertyPath: m_Name
-      value: Load Game Button
+      value: Save Slots Button
       objectReference: {fileID: 0}
     - target: {fileID: 5323092255476448901, guid: e582a9d5faffc8c45823b62d395aa0d6,
         type: 3}

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3706826648979248677}
   - component: {fileID: 4663222499022461765}
   - component: {fileID: 5424083232273722501}
+  - component: {fileID: -7526846217359793910}
   - component: {fileID: 3036880119180555459}
   m_Layer: 5
   m_Name: UI Tab Button
@@ -122,6 +123,24 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-7526846217359793910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1855042228019002788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15fe8a55b61d4084eab8146576be7f54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  singleUse: 0
+  onClick:
+    actions: []
+  references:
+    version: 2
+    RefIds: []
 --- !u!114 &3036880119180555459
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1789,7 +1789,7 @@ PrefabInstance:
     - target: {fileID: 2131953009785454837, guid: 9c02ba9fe635d77438c7a1e8f6d7b5b1,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 959.79865
+      value: 1050
       objectReference: {fileID: 0}
     - target: {fileID: 2131953009785454837, guid: 9c02ba9fe635d77438c7a1e8f6d7b5b1,
         type: 3}
@@ -1804,7 +1804,7 @@ PrefabInstance:
     - target: {fileID: 2220384078689723319, guid: 9c02ba9fe635d77438c7a1e8f6d7b5b1,
         type: 3}
       propertyPath: m_Value
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2367075599088840505, guid: 9c02ba9fe635d77438c7a1e8f6d7b5b1,
         type: 3}
@@ -2014,7 +2014,7 @@ PrefabInstance:
     - target: {fileID: 7857090188047115313, guid: 9c02ba9fe635d77438c7a1e8f6d7b5b1,
         type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 959.79865
+      value: 1050
       objectReference: {fileID: 0}
     - target: {fileID: 7857090188047115313, guid: 9c02ba9fe635d77438c7a1e8f6d7b5b1,
         type: 3}
@@ -2179,7 +2179,7 @@ MonoBehaviour:
   customId: 
   select: {fileID: 0}
   options: -1
-  state: 2
+  state: 0
   focus: 0
   backEnabled: 1
   onOpened:
