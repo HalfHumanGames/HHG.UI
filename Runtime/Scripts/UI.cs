@@ -290,9 +290,16 @@ namespace HHG.UI.Runtime
                 ResetSelection();
             }
 
-            if (selectionToRestore != null)
+            if (options.HasFlag(Options.RestorePreviousSelection))
             {
-                selectionToRestore.Select();
+                if (selectionToRestore != null)
+                {
+                    selectionToRestore.Select();
+                }
+                else
+                {
+                    EventSystem.current.SetSelectedGameObject(null);
+                }
             }
         }
 
