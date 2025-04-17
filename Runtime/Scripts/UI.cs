@@ -265,21 +265,6 @@ namespace HHG.UI.Runtime
         protected virtual void OnOpen()
         {
             canvasGroup.alpha = 1f;
-        }
-
-        protected virtual void OnClose()
-        {
-            canvasGroup.alpha = 0f;
-
-            if (options.HasFlag(Options.ForgetSelectionOnClose))
-            {
-                ResetSelection();
-            }
-        }
-
-        protected virtual void OnFocus()
-        {
-            canvasGroup.interactable = true;
 
             Selectable selection = EventSystem.current.GetCurrentSelectable();
 
@@ -294,6 +279,28 @@ namespace HHG.UI.Runtime
                     selectionToRestore = null;
                 }
             }
+        }
+
+        protected virtual void OnClose()
+        {
+            canvasGroup.alpha = 0f;
+
+            if (options.HasFlag(Options.ForgetSelectionOnClose))
+            {
+                ResetSelection();
+            }
+
+            if (selectionToRestore != null)
+            {
+                selectionToRestore.Select();
+            }
+        }
+
+        protected virtual void OnFocus()
+        {
+            canvasGroup.interactable = true;
+
+            Selectable selection = EventSystem.current.GetCurrentSelectable();
 
             if (!selection || !this.IsChild(selection))
             {
@@ -323,15 +330,6 @@ namespace HHG.UI.Runtime
                     selectionToRemember = null;
                 }
             }
-
-            if (selectionToRestore != null)
-            {
-                selectionToRestore.Select();
-            }
-            else
-            {
-                EventSystem.current.SetSelectedGameObject(null);
-            }
         }
 
         private Coroutine Transition(IEnumerator coroutine)
@@ -348,7 +346,7 @@ namespace HHG.UI.Runtime
                 yield return new WaitForEndOfFrame();
             }
 
-            yield return coroutine;
+            yield return StartCoroutine(coroutine);
 
             canvasGroup.interactable = IsOpen && IsFocused;
         }
@@ -619,15 +617,15 @@ namespace HHG.UI.Runtime
 
     public abstract class UIT : UI, IRefreshableWeak
     {
-        public abstract UIAssetT WeakAsset { get; }
+        public abstract UIAssetT WeakAsset { get; set; }
 
         public abstract void RefreshWeak(object data);
     }
 
     public abstract class UI<T> : UIT, IRefreshable<T>
     {
-        public override UIAssetT WeakAsset => asset;
-        public UIAsset<T> Asset => asset;
+        public override UIAssetT WeakAsset { get => asset; set => asset = value as UIAsset<T>; }
+        public UIAsset<T> Asset { get => asset; set => asset = value; }
         
         [SerializeField] private UIAsset<T> asset;
 
