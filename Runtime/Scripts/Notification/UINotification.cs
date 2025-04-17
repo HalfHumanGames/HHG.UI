@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 namespace HHG.UI.Runtime
 {
-    public class UINotification : UI<Notification>
+    public class UINotification : UI<NotificationData>
     {
         [SerializeField] private float duration = 3f;
         [SerializeField] private TextMeshProUGUI label;
         [SerializeField] private Image background;
 
-        public override void Refresh(Notification data)
+        public override void Refresh(NotificationData data)
         {
             base.Refresh(data);
 
