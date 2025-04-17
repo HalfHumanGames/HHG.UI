@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 namespace HHG.Common.Runtime
 {
-    public class UICarousel : UI<Carousel>
+    public class UICarousel : UI<CarouselData>
     {
         [SerializeField] private float fadeDuration = .25f;
         [SerializeField] private bool hideButtons;
@@ -55,7 +55,7 @@ namespace HHG.Common.Runtime
 
         private void RefreshNow()
         {
-            CarouselItem item = data.Items[current];
+            CarouselItemData item = data.Items[current];
 
             UpdateGraphics(images, item.Sprites, (image, sprite) => image.sprite = sprite);
             UpdateGraphics(labels, item.Texts, (label, text) => label.text = text);
@@ -98,7 +98,7 @@ namespace HHG.Common.Runtime
             }
         }
 
-        public override void Refresh(Carousel data)
+        public override void Refresh(CarouselData data)
         {
             base.Refresh(data);
 
@@ -176,6 +176,11 @@ namespace HHG.Common.Runtime
         public void Continue()
         {
             onContinue?.Invoke(this);
+
+            if (data != null)
+            {
+                data.OnContinue?.Invoke(this);
+            }
         }
     }
 }
