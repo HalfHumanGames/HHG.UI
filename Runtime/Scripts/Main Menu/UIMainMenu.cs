@@ -2,22 +2,14 @@ using HHG.Common.Runtime;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using System.Collections;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace HHG.UI.Runtime
 {
     public class UIMainMenu : UI
     {
-        private const string saveFile1 = "Save Slot 1";
-        private const string saveFile2 = "Save Slot 2";
-        private const string saveFile3 = "Save Slot 3";
-
-        private static readonly string[] saveFileNames = new string[] { saveFile1, saveFile2, saveFile3 };
+        private string saveFile0 = "Save Slot 0";
 
         [Header("Main")]
         [SerializeField] private SaveFileAssetBase saveFileAsset;
@@ -30,14 +22,10 @@ namespace HHG.UI.Runtime
         [Header("Buttons")]
         [SerializeField] private UIButton playButton;
         [SerializeField] private UIButton continueButton;
-        [SerializeField] private UIButton loadGameButton;
-        [SerializeField] private UIButton newGameButton;
+        [SerializeField] private UIButton saveSlotsButton;
         [SerializeField] private UIButton optionsButton;
         [SerializeField] private UIButton creditsButton;
         [SerializeField] private UIButton exitButton;
-
-        private List<Button> buttons = new List<Button>();
-        private IEnumerable<Button> activeButtons = Enumerable.Empty<Button>();
 
         protected override void Start()
         {
@@ -45,49 +33,76 @@ namespace HHG.UI.Runtime
 
             playButton.OnClick.AddListener(OnClickPlay);
             continueButton.OnClick.AddListener(OnClickContinue);
-            loadGameButton.OnClick.AddListener(OnClickLoadGame);
-            newGameButton.OnClick.AddListener(OnClickNewGame);
+            saveSlotsButton.OnClick.AddListener(OnClickSaveSlots);
             optionsButton.OnClick.AddListener(OnClickOptions);
             creditsButton.OnClick.AddListener(OnClickCredits);
-            exitButton.OnClick.AddListener(OnClickExit);
+            exitButton.OnClick.AddListener(OnClickExit); 
 
-            bool exists = saveFileAsset.AnyExists(saveFileNames);
+            Refresh();
+        }
+
+        protected override void OnFocus()
+        {
+            base.OnFocus();
+
+            Refresh();
+        }
+
+        private void Refresh()
+        {
+            bool exists = saveFileAsset.AnyExists();
             playButton.gameObject.SetActive(!exists);
             continueButton.gameObject.SetActive(exists);
-            loadGameButton.gameObject.SetActive(exists);
-            newGameButton.gameObject.SetActive(exists);
+            saveSlotsButton.gameObject.SetActive(exists);
 
-            GetComponentsInChildren(true, buttons);
-            activeButtons = buttons.Where(b => b.isActiveAndEnabled && b.interactable);
-            activeButtons.SetNavigationVertical();
-
-            if (activeButtons.Any())
+            using (ListPool<Button>.Get(out List<Button> buttons))
             {
-                select = activeButtons.FirstOrDefault();
+                GetComponentsInChildren(true, buttons);
+
+                var activeButtons = buttons.Where(b => b.isActiveAndEnabled && b.interactable);
+                activeButtons.SetNavigationVertical();
+
+                if (activeButtons.Any())
+                {
+                    select = activeButtons.FirstOrDefault();
+                }
             }
         }
 
         private void OnClickPlay()
         {
-            saveFileAsset.Delete(saveFile1);
-            saveFileAsset.Load(saveFile1);
-            this.LoadScene(ConfigBase.Scenes.NewGameScene.SceneName);
+            saveFileAsset.Delete(saveFile0);
+
+            Push("Vertical", new ModalData
+            (
+                "Select Difficulty",
+                string.Empty,
+                true,
+                ConfigBase.Difficulty.Difficulties.Select(difficulty => new ButtonData
+                (
+                    difficulty.DisplayName,
+                    difficulty.Description,
+                    (button, ui) =>
+                    {
+                        saveFileAsset.Load(saveFile0);
+                        saveFileAsset.DisplayName = difficulty.DisplayName;
+                        saveFileAsset.DifficultyIndex = (ui as UIModal).Selection;
+                        saveFileAsset.Save();
+                        this.LoadScene(ConfigBase.Scenes.NewGameScene.SceneName);
+                    }
+                ))
+            ));
         }
 
         private void OnClickContinue()
         {
-            saveFileAsset.LoadLastSaved(saveFileNames);
+            saveFileAsset.LoadLastSaved();
             this.LoadScene(ConfigBase.Scenes.GetScene(saveFileAsset.SaveFileScene).SceneName);
         }
 
-        private void OnClickLoadGame()
+        private void OnClickSaveSlots()
         {
-
-        }
-
-        private void OnClickNewGame()
-        {
-
+            saveSlotsMenu.Push();
         }
 
         private void OnClickOptions()
@@ -102,11 +117,7 @@ namespace HHG.UI.Runtime
 
         private void OnClickExit()
         {
-            Application.Quit();
-
-#if UNITY_EDITOR
-            EditorApplication.ExitPlaymode();
-#endif
+            ApplicationUtil.Quit();
         }
     }
 }
