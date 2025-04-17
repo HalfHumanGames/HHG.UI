@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace HHG.UI.Runtime
 {
-    public class UICreditsScreen : UI
+    public class UICreditsMenu : UI
     {
         [SerializeField] private bool autoScroll;
         [SerializeField, ShowIf(nameof(autoScroll), true)] private float scrollSpeed = 50f;
