@@ -4,20 +4,19 @@ using UnityEngine;
 namespace HHG.UI.Runtime
 {
     [System.Serializable]
-    public class Modal
+    public class ModalData
     {
         public string Header;
         [TextArea] public string Description;
         public bool BackEnabled = true;
-        public List<ModalButton> Buttons = new List<ModalButton>();
-        public int Selection;
+        public List<ButtonData> Buttons = new List<ButtonData>();
 
-        public Modal()
+        public ModalData()
         {
 
         }
 
-        public Modal(string header, string description, bool backEnabled, List<ModalButton> buttons)
+        public ModalData(string header, string description, bool backEnabled, List<ButtonData> buttons)
         {
             Header = header;
             Description = description;
@@ -25,7 +24,7 @@ namespace HHG.UI.Runtime
             Buttons = buttons;
         }
 
-        public Modal(string header, string description, bool backEnabled, IEnumerable<ModalButton> buttons)
+        public ModalData(string header, string description, bool backEnabled, IEnumerable<ButtonData> buttons)
         {
             Header = header;
             Description = description;
