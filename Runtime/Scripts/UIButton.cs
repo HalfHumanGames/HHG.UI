@@ -23,12 +23,12 @@ namespace HHG.UISystem.Runtime
 
         private void OnButtonClick()
         {
-            onClick.Invoke(this);
-
             if (singleUse)
             {
                 button.interactable = false;
             }
+
+            onClick.Invoke(this);
         }
     }
 }
