@@ -28,3 +28,8 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 4483c585c3858f94c951a1198b1bf584, type: 3}
       Texts:
       - A big bad dragon...
+    OnContinue:
+      actions: []
+  references:
+    version: 2
+    RefIds: []
