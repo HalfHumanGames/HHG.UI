@@ -259,7 +259,19 @@ namespace HHG.UI.Runtime
 
         protected virtual void OnWillUnfocus()
         {
+            canvasGroup.interactable = false;
 
+            if (options.HasFlag(Options.RememberSection))
+            {
+                if (EventSystem.current.TryGetCurrentSelection(out Selectable selection) && this.IsChild(selection))
+                {
+                    selectionToRemember = selection;
+                }
+                else
+                {
+                    selectionToRemember = null;
+                }
+            }
         }
 
         protected virtual void OnOpen()
@@ -324,19 +336,7 @@ namespace HHG.UI.Runtime
 
         protected virtual void OnUnfocus()
         {
-            canvasGroup.interactable = false;
-
-            if (options.HasFlag(Options.RememberSection))
-            {
-                if (EventSystem.current.TryGetCurrentSelection(out Selectable selection) && this.IsChild(selection))
-                {
-                    selectionToRemember = selection;
-                }
-                else
-                {
-                    selectionToRemember = null;
-                }
-            }
+            
         }
 
         private Coroutine Transition(IEnumerator coroutine)
