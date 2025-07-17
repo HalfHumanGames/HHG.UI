@@ -122,7 +122,7 @@ namespace HHG.UI.Runtime
         public Coroutine Push() => Push(GetType(), Id, false);
         public Coroutine Push(bool instant) => Push(GetType(), Id, instant);
 
-        public void MarkLayoutForRebuild() => rectTransform.MarkLayoutForRebuild();
+        public void MarkLayoutForRebuild(System.Action done = null) => rectTransform.MarkLayoutForRebuild(done);
 
         public void EnableBack(bool val) => backEnabled = val;
         public void EnableBack() => backEnabled = true;
