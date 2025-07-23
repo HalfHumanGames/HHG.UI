@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -83,6 +84,7 @@ namespace HHG.UI.Runtime
         private UI root;
         private UI parent;
         private List<UI> children = new List<UI>();
+        private Queue<int> transitions = new Queue<int>();
         private RectTransform rectTransform;
         private Animator animator;
         private CanvasGroup canvasGroup;
@@ -346,15 +348,20 @@ namespace HHG.UI.Runtime
 
         private IEnumerator WaitForAnimationToFinish(IEnumerator coroutine)
         {
+            // Track hash in queue to ensure animations execute
+            // in the order in which they were called/enqueued
+            int hash = RuntimeHelpers.GetHashCode(coroutine);
+            transitions.Enqueue(hash);
             canvasGroup.interactable = false;
 
-            while (IsTransitioning)
+            while (IsTransitioning || transitions.Peek() != hash)
             {
                 yield return new WaitForEndOfFrame();
             }
 
             yield return StartCoroutine(coroutine);
 
+            transitions.Dequeue();
             canvasGroup.interactable = IsOpen && IsFocused;
         }
 
