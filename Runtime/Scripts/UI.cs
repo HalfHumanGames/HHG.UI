@@ -1,10 +1,10 @@
 ﻿using HHG.Common.Runtime;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Pool;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -101,24 +101,24 @@ namespace HHG.UI.Runtime
         private bool wasUnfocused { get => wasOpen && previousFocus == FocusState.Unfocused; set => previousFocus = value ? FocusState.Unfocused : FocusState.Focused; }
 
         [ContextMenu("Open")]
-        public Coroutine Open() => OpenInternal(false);
-        public Coroutine Open(bool instant) => OpenInternal(instant);
+        public Coroutine Open() => StartCoroutine(OpenAsync(false));
+        public Coroutine Open(bool instant) => StartCoroutine(OpenAsync(instant));
 
         [ContextMenu("Close")]
-        public Coroutine Close() => CloseInternal(false);
-        public Coroutine Close(bool instant) => CloseInternal(instant);
+        public Coroutine Close() => StartCoroutine(CloseAsync(false));
+        public Coroutine Close(bool instant) => StartCoroutine(CloseAsync(instant));
 
         [ContextMenu("Toggle")]
-        public Coroutine Toggle() => ToggleInternal(false);
-        public Coroutine Toggle(bool instant) => ToggleInternal(instant);
+        public Coroutine Toggle() => StartCoroutine(ToggleAsync(false));
+        public Coroutine Toggle(bool instant) => StartCoroutine(ToggleAsync(instant));
 
         [ContextMenu("Focus")]
-        public Coroutine Focus() => FocusInternal(false);
-        public Coroutine Focus(bool instant) => FocusInternal(instant);
+        public Coroutine Focus() => StartCoroutine(FocusAsync(false));
+        public Coroutine Focus(bool instant) => StartCoroutine(FocusAsync(instant));
 
         [ContextMenu("Unfocus")]
-        public Coroutine Unfocus() => UnfocusInternal(false);
-        public Coroutine Unfocus(bool instant) => UnfocusInternal(instant);
+        public Coroutine Unfocus() => StartCoroutine(UnfocusAsync(false));
+        public Coroutine Unfocus(bool instant) => StartCoroutine(UnfocusAsync(instant));
 
         [ContextMenu("Push")]
         public Coroutine Push() => Push(GetType(), Id, false);
@@ -131,11 +131,11 @@ namespace HHG.UI.Runtime
         public void DisableBack() => backEnabled = false;
         public void ResetSelection() => selectionToRemember = null;
 
-        private Coroutine OpenInternal(bool instant = false) => Transition(OpenCoroutine(instant));
-        private Coroutine CloseInternal(bool instant = false) => Transition(CloseCoroutine(instant));
-        private Coroutine ToggleInternal(bool instant = false) => IsOpen ? CloseInternal(instant) : OpenInternal(instant);
-        private Coroutine FocusInternal(bool instant = false) => Transition(FocusCoroutine(instant));
-        private Coroutine UnfocusInternal(bool instant = false) => Transition(UnfocusCoroutine(instant));
+        private IEnumerator OpenAsync(bool instant = false) => TransitionAsync(OpenInternalAsync(instant));
+        private IEnumerator CloseAsync(bool instant = false) => TransitionAsync(CloseInternalAsync(instant));
+        private IEnumerator ToggleAsync(bool instant = false) => IsOpen ? CloseAsync(instant) : OpenAsync(instant);
+        private IEnumerator FocusAsync(bool instant = false) => TransitionAsync(FocusInternalAsync(instant));
+        private IEnumerator UnfocusAsync(bool instant = false) => TransitionAsync(UnfocusInternalAsync(instant));
 
         protected virtual void Awake()
         {
@@ -197,7 +197,7 @@ namespace HHG.UI.Runtime
 
         protected virtual void Update()
         {
- 
+
         }
 
         private void InitializeRoot()
@@ -214,7 +214,7 @@ namespace HHG.UI.Runtime
                 case OpenState.Closed:
                     state = OpenState.Open;
                     focus = FocusState.Unfocused;
-                    CloseInternal(instant);
+                    Close(instant);
                     break;
                 case OpenState.Opening:
                 case OpenState.Open:
@@ -234,13 +234,13 @@ namespace HHG.UI.Runtime
             {
                 state = OpenState.Closed;
                 focus = FocusState.Unfocused;
-                OpenInternal(true);
+                Open(true);
             }
             else
             {
                 state = OpenState.Open;
                 focus = FocusState.Unfocused;
-                CloseInternal(true);
+                Close(true);
             }
         }
 
@@ -338,15 +338,15 @@ namespace HHG.UI.Runtime
 
         protected virtual void OnUnfocus()
         {
-            
+
         }
 
-        private Coroutine Transition(IEnumerator coroutine)
+        private IEnumerator TransitionAsync(IEnumerator coroutine)
         {
-            return StartCoroutine(WaitForAnimationToFinish(coroutine));
+            return WaitForAnimationToFinishAsync(coroutine);
         }
 
-        private IEnumerator WaitForAnimationToFinish(IEnumerator coroutine)
+        private IEnumerator WaitForAnimationToFinishAsync(IEnumerator coroutine)
         {
             // Track hash in queue to ensure animations execute
             // in the order in which they were called/enqueued
@@ -359,30 +359,31 @@ namespace HHG.UI.Runtime
                 yield return new WaitForEndOfFrame();
             }
 
-            yield return StartCoroutine(coroutine);
+            yield return coroutine;
 
             transitions.Dequeue();
             canvasGroup.interactable = IsOpen && IsFocused;
         }
 
-        private IEnumerator OpenCoroutine(bool instant = false)
+        private IEnumerator OpenInternalAsync(bool instant = false)
         {
-            if (IsOpen) yield break;
+            if (!IsOpen)
+            {
+                MarkLayoutForRebuild();
+                OnWillOpen();
 
-            MarkLayoutForRebuild();
-            OnWillOpen();
+                state = OpenState.Opening;
+                yield return OpenSelfAsync(instant);
+                yield return OpenChildrenAsync(instant);
+                state = OpenState.Open;
 
-            state = OpenState.Opening;
-            yield return OpenSelf(instant);
-            yield return OpenChildren(instant);
-            state = OpenState.Open;
-
-            OnOpen();
-            onOpened.Invoke(this);
-            OnAnyOpened.Invoke(this);
+                OnOpen();
+                onOpened.Invoke(this);
+                OnAnyOpened.Invoke(this);
+            }
         }
 
-        private IEnumerator OpenSelf(bool instant)
+        private IEnumerator OpenSelfAsync(bool instant)
         {
             if (instant)
             {
@@ -399,68 +400,64 @@ namespace HHG.UI.Runtime
             }
         }
 
-        private IEnumerator OpenChildren(bool instant)
+        private IEnumerator OpenChildrenAsync(bool instant)
         {
-            List<UI> watch = new List<UI>();
+            List<IEnumerator> watch = ListPool<IEnumerator>.Get();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].wasOpen)
                 {
-                    children[i].OpenInternal(instant);
-                    watch.Add(children[i]);
+                    watch.Add(children[i].OpenAsync(instant));
                 }
             }
 
-            while (watch.Count > 0 && watch.Any(child => child.IsOpening))
+            yield return CoroutineUtil.YieldAllParallel(watch);
+
+            ListPool<IEnumerator>.Release(watch);
+        }
+
+        private IEnumerator CloseInternalAsync(bool instant = false)
+        {
+            if (!IsClosed)
             {
-                yield return new WaitForEndOfFrame();
+                OnWillClose();
+
+                state = OpenState.Closing;
+                yield return CloseChildrenAsync(instant);
+                yield return CloseSelfAsync(instant);
+                state = OpenState.Closed;
+
+                ResetAllTriggers();
+                OnClose();
+                onClosed.Invoke(this);
+                OnAnyClosed.Invoke(this);
             }
         }
 
-        private IEnumerator CloseCoroutine(bool instant = false)
+        private IEnumerator CloseChildrenAsync(bool instant)
         {
-            if (IsClosed) yield break;
-
-            OnWillClose();
-
-            state = OpenState.Closing;
-            yield return CloseChildren(instant);
-            yield return CloseSelf(instant);
-            state = OpenState.Closed;
-
-            ResetAllTriggers();
-            OnClose();
-            onClosed.Invoke(this);
-            OnAnyClosed.Invoke(this);
-        }
-
-        private IEnumerator CloseChildren(bool instant)
-        {
-            List<UI> watch = new List<UI>();
+            List<IEnumerator> watch = ListPool<IEnumerator>.Get();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].IsOpen || children[i].IsOpening)
                 {
                     children[i].wasOpen = true;
-                    children[i].CloseInternal(instant);
-                    watch.Add(children[i]);
+                    watch.Add(children[i].CloseAsync(instant));
                 }
                 else
                 {
-                    children[i].wasClosed = true;
-                    children[i].CloseInternal(true);
+                    children[i].wasClosed = false;
                 }
             }
 
-            while (watch.Count > 0 && watch.Any(child => child.IsClosing))
-            {
-                yield return new WaitForEndOfFrame();
-            }
+            yield return CoroutineUtil.YieldAllParallel(watch);
+
+            ListPool<IEnumerator>.Release(watch);
         }
 
-        private IEnumerator CloseSelf(bool instant)
+        private IEnumerator CloseSelfAsync(bool instant)
         {
             if (instant)
             {
@@ -492,24 +489,25 @@ namespace HHG.UI.Runtime
             }
         }
 
-        private IEnumerator FocusCoroutine(bool instant = false)
+        private IEnumerator FocusInternalAsync(bool instant = false)
         {
-            if (IsClosed || IsFocused) yield break;
+            if (!IsClosed && !IsFocused)
+            {
+                OnWillFocus();
 
-            OnWillFocus();
+                focus = FocusState.Focusing;
+                yield return FocusSelfAsync(instant);
+                yield return FocusChildrenAsync(instant);
+                focus = FocusState.Focused;
 
-            focus = FocusState.Focusing;
-            yield return FocusSelf(instant);
-            yield return FocusChildren(instant);
-            focus = FocusState.Focused;
-
-            ResetAllTriggers();
-            OnFocus();
-            onFocused.Invoke(this);
-            OnAnyFocused.Invoke(this);
+                ResetAllTriggers();
+                OnFocus();
+                onFocused.Invoke(this);
+                OnAnyFocused.Invoke(this);
+            }
         }
 
-        private IEnumerator FocusSelf(bool instant)
+        private IEnumerator FocusSelfAsync(bool instant)
         {
             if (instant)
             {
@@ -526,42 +524,41 @@ namespace HHG.UI.Runtime
             }
         }
 
-        private IEnumerator FocusChildren(bool instant)
+        private IEnumerator FocusChildrenAsync(bool instant)
         {
-            List<UI> watch = new List<UI>();
+            List<IEnumerator> watch = ListPool<IEnumerator>.Get();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].wasFocused)
                 {
-                    children[i].FocusInternal(instant);
-                    watch.Add(children[i]);
+                    watch.Add(children[i].FocusAsync(instant));
                 }
             }
 
-            while (watch.Count > 0 && watch.Any(child => child.IsFocusing))
+            yield return CoroutineUtil.YieldAllParallel(watch);
+
+            ListPool<IEnumerator>.Release(watch);
+        }
+
+        private IEnumerator UnfocusInternalAsync(bool instant = false)
+        {
+            if (!IsClosed && !IsUnfocused)
             {
-                yield return new WaitForEndOfFrame();
+                OnWillUnfocus();
+
+                focus = FocusState.Unfocusing;
+                yield return UnfocusSelfAsync(instant);
+                yield return UnfocusChildrenAsync(instant);
+                focus = FocusState.Unfocused;
+
+                OnUnfocus();
+                onUnfocused.Invoke(this);
+                OnAnyUnfocused.Invoke(this);
             }
         }
 
-        private IEnumerator UnfocusCoroutine(bool instant = false)
-        {
-            if (IsClosed || IsUnfocused) yield break;
-
-            OnWillUnfocus();
-
-            focus = FocusState.Unfocusing;
-            yield return UnfocusSelf(instant);
-            yield return UnfocusChildren(instant);
-            focus = FocusState.Unfocused;
-
-            OnUnfocus();
-            onUnfocused.Invoke(this);
-            OnAnyUnfocused.Invoke(this);
-        }
-
-        private IEnumerator UnfocusSelf(bool instant)
+        private IEnumerator UnfocusSelfAsync(bool instant)
         {
             if (instant)
             {
@@ -585,29 +582,26 @@ namespace HHG.UI.Runtime
             }
         }
 
-        private IEnumerator UnfocusChildren(bool instant)
+        private IEnumerator UnfocusChildrenAsync(bool instant)
         {
-            List<UI> watch = new List<UI>();
+            List<IEnumerator> watch = ListPool<IEnumerator>.Get();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].IsFocused || children[i].IsFocusing)
                 {
                     children[i].wasFocused = true;
-                    children[i].UnfocusInternal(instant);
-                    watch.Add(children[i]);
+                    watch.Add(children[i].UnfocusAsync(instant));
                 }
                 else
                 {
                     children[i].wasFocused = true;
-                    children[i].UnfocusInternal(true);
                 }
             }
 
-            while (watch.Count > 0 && watch.Any(child => child.IsUnfocusing))
-            {
-                yield return new WaitForEndOfFrame();
-            }
+            yield return CoroutineUtil.YieldAllParallel(watch);
+
+            ListPool<IEnumerator>.Release(watch);
         }
 
         private void ResetAllTriggers()
@@ -625,7 +619,7 @@ namespace HHG.UI.Runtime
 
         protected virtual void OnValidate()
         {
-            
+
         }
     }
 
@@ -640,7 +634,7 @@ namespace HHG.UI.Runtime
     {
         public override UIAssetT WeakAsset { get => asset; set => asset = value as UIAsset<T>; }
         public UIAsset<T> Asset { get => asset; set => asset = value; }
-        
+
         [SerializeField] private UIAsset<T> asset;
 
         protected T data;

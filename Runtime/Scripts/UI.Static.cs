@@ -37,47 +37,47 @@ namespace HHG.UI.Runtime
         public static void UnregisterDataProvider<T>() where T : UI => UnregisterDataProviderInternal(typeof(T), null);
         public static void UnregisterDataProvider(System.Type type, object id) => UnregisterDataProviderInternal(type, id);
         public static void UnregisterDataProvider(System.Type type) => UnregisterDataProviderInternal(type, null);
-        public static Coroutine Open<T, TData>(object id, TData data, bool instant = false) where T : UI => OpenInternal(typeof(T), id, instant, data);
-        public static Coroutine Open<T, TData>(TData data, bool instant = false) where T : UI => OpenInternal(typeof(T), null, instant, data);
-        public static Coroutine Open<TData>(System.Type type, object id, TData data, bool instant = false) => OpenInternal(type, id, instant, data);
-        public static Coroutine Open<TData>(System.Type type, TData data, bool instant = false) => OpenInternal(type, null, instant, data);
-        public static Coroutine Open<T>(object id = null, bool instant = false) where T : UI => OpenInternal(typeof(T), id, instant);
-        public static Coroutine Open<T>(bool instant) where T : UI => OpenInternal(typeof(T), null, instant);
-        public static Coroutine Open(System.Type type, object id = null, bool instant = false) => OpenInternal(type, id, instant);
-        public static Coroutine Open(System.Type type, bool instant) => OpenInternal(type, null, instant);
-        public static Coroutine Close<T>(object id = null, bool instant = false) where T : UI => CloseInternal(typeof(T), id, instant);
-        public static Coroutine Close<T>(bool instant) where T : UI => CloseInternal(typeof(T), null, instant);
-        public static Coroutine Close(System.Type type, object id = null, bool instant = false) => CloseInternal(type, id, instant);
-        public static Coroutine Close(System.Type type, bool instant) => CloseInternal(type, null, instant);
-        public static Coroutine Focus<T>(object id = null, bool instant = false) where T : UI => FocusInternal(typeof(T), id, instant);
-        public static Coroutine Focus<T>(bool instant) where T : UI => FocusInternal(typeof(T), null, instant);
-        public static Coroutine Focus(System.Type type, object id = null, bool instant = false) => FocusInternal(type, id, instant);
-        public static Coroutine Focus(System.Type type, bool instant) => FocusInternal(type, null, instant);
-        public static Coroutine Unfocus<T>(object id = null, bool instant = false) where T : UI => UnfocusInternal(typeof(T), id, instant);
-        public static Coroutine Unfocus<T>(bool instant) where T : UI => UnfocusInternal(typeof(T), null, instant);
-        public static Coroutine Unfocus(System.Type type, object id = null, bool instant = false) => UnfocusInternal(type, id, instant);
-        public static Coroutine Unfocus(System.Type type, bool instant) => UnfocusInternal(type, null, instant);
-        public static Coroutine GoTo<T>(object id = null, bool instant = false) where T : UI => GoToInternal(typeof(T), id, instant);
-        public static Coroutine GoTo<T>(bool instant) where T : UI => GoToInternal(typeof(T), null, instant);
-        public static Coroutine GoTo(System.Type type, object id = null, bool instant = false) => GoToInternal(type, id, instant);
-        public static Coroutine GoTo(System.Type type, bool instant) => GoToInternal(type, null, instant);
-        public static Coroutine Push<T, TData>(object id, TData data, bool instant = false) where T : UI => PushInternal(typeof(T), id, instant, data);
-        public static Coroutine Push<T, TData>(TData data, bool instant = false) where T : UI => PushInternal(typeof(T), null, instant, data);
-        public static Coroutine Push<TData>(System.Type type, object id, TData data, bool instant = false) => PushInternal(type, id, instant, data);
-        public static Coroutine Push<TData>(System.Type type, TData data, bool instant = false) => PushInternal(type, null, instant, data);
+        public static Coroutine Open<T, TData>(object id, TData data, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(OpenAsync(typeof(T), id, instant, data));
+        public static Coroutine Open<T, TData>(TData data, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(OpenAsync(typeof(T), null, instant, data));
+        public static Coroutine Open<TData>(System.Type type, object id, TData data, bool instant = false) => CoroutineUtil.StartCoroutine(OpenAsync(type, id, instant, data));
+        public static Coroutine Open<TData>(System.Type type, TData data, bool instant = false) => CoroutineUtil.StartCoroutine(OpenAsync(type, null, instant, data));
+        public static Coroutine Open<T>(object id = null, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(OpenAsync(typeof(T), id, instant));
+        public static Coroutine Open<T>(bool instant) where T : UI => CoroutineUtil.StartCoroutine(OpenAsync(typeof(T), null, instant));
+        public static Coroutine Open(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(OpenAsync(type, id, instant));
+        public static Coroutine Open(System.Type type, bool instant) => CoroutineUtil.StartCoroutine(OpenAsync(type, null, instant));
+        public static Coroutine Close<T>(object id = null, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(CloseAsync(typeof(T), id, instant));
+        public static Coroutine Close<T>(bool instant) where T : UI => CoroutineUtil.StartCoroutine(CloseAsync(typeof(T), null, instant));
+        public static Coroutine Close(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(CloseAsync(type, id, instant));
+        public static Coroutine Close(System.Type type, bool instant) => CoroutineUtil.StartCoroutine(CloseAsync(type, null, instant));
+        public static Coroutine Focus<T>(object id = null, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(FocusAsync(typeof(T), id, instant));
+        public static Coroutine Focus<T>(bool instant) where T : UI => CoroutineUtil.StartCoroutine(FocusAsync(typeof(T), null, instant));
+        public static Coroutine Focus(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(FocusAsync(type, id, instant));
+        public static Coroutine Focus(System.Type type, bool instant) => CoroutineUtil.StartCoroutine(FocusAsync(type, null, instant));
+        public static Coroutine Unfocus<T>(object id = null, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(UnfocusAsync(typeof(T), id, instant));
+        public static Coroutine Unfocus<T>(bool instant) where T : UI => CoroutineUtil.StartCoroutine(UnfocusAsync(typeof(T), null, instant));
+        public static Coroutine Unfocus(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(UnfocusAsync(type, id, instant));
+        public static Coroutine Unfocus(System.Type type, bool instant) => CoroutineUtil.StartCoroutine(UnfocusAsync(type, null, instant));
+        public static Coroutine GoTo<T>(object id = null, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(GoToAsync(typeof(T), id, instant));
+        public static Coroutine GoTo<T>(bool instant) where T : UI => CoroutineUtil.StartCoroutine(GoToAsync(typeof(T), null, instant));
+        public static Coroutine GoTo(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(GoToAsync(type, id, instant));
+        public static Coroutine GoTo(System.Type type, bool instant) => CoroutineUtil.StartCoroutine(GoToAsync(type, null, instant));
+        public static Coroutine Push<T, TData>(object id, TData data, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(PushAsync(typeof(T), id, instant, data));
+        public static Coroutine Push<T, TData>(TData data, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(PushAsync(typeof(T), null, instant, data));
+        public static Coroutine Push<TData>(System.Type type, object id, TData data, bool instant = false) => CoroutineUtil.StartCoroutine(PushAsync(type, id, instant, data));
+        public static Coroutine Push<TData>(System.Type type, TData data, bool instant = false) => CoroutineUtil.StartCoroutine(PushAsync(type, null, instant, data));
         public static Coroutine Push<TData>(TData data, bool instant = false) => Push(FindTypeByModel<TData>(), data, instant);
         public static Coroutine Push<TData>(object id, TData data, bool instant = false) => Push(FindTypeByModel<TData>(), id, data, instant);
-        public static Coroutine Push<T>(object id = null, bool instant = false) where T : UI => PushInternal(typeof(T), id, instant);
-        public static Coroutine Push<T>(bool instant) where T : UI => PushInternal(typeof(T), null, instant);
-        public static Coroutine Push(System.Type type, object id = null, bool instant = false) => PushInternal(type, id, instant);
-        public static Coroutine Push(System.Type type, bool instant) => PushInternal(type, null, instant);
-        public static Coroutine Pop(bool instant = false) => PopInternal(instant);
-        public static Coroutine Pop(int amount, bool instant = false) => PopInternal(amount, instant);
-        public static Coroutine Clear(bool instant = false) => ClearInternal(instant);
-        public static Coroutine Swap<T>(object id = null, bool instant = false) where T : UI => SwapInternal(typeof(T), id, instant);
-        public static Coroutine Swap<T>(bool instant) where T : UI => SwapInternal(typeof(T), null, instant);
-        public static Coroutine Swap(System.Type type, object id = null, bool instant = false) => SwapInternal(type, id, instant);
-        public static Coroutine Swap(System.Type type, bool instant) => SwapInternal(type, null, instant);
+        public static Coroutine Push<T>(object id = null, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(PushAsync(typeof(T), id, instant));
+        public static Coroutine Push<T>(bool instant) where T : UI => CoroutineUtil.StartCoroutine(PushAsync(typeof(T), null, instant));
+        public static Coroutine Push(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(PushAsync(type, id, instant));
+        public static Coroutine Push(System.Type type, bool instant) => CoroutineUtil.StartCoroutine(PushAsync(type, null, instant));
+        public static Coroutine Pop(bool instant = false) => CoroutineUtil.StartCoroutine(PopAsync(instant));
+        public static Coroutine Pop(int amount, bool instant = false) => CoroutineUtil.StartCoroutine(PopAsync(amount, instant));
+        public static Coroutine Clear(bool instant = false) => CoroutineUtil.StartCoroutine(ClearAsync(instant));
+        public static Coroutine Swap<T>(object id = null, bool instant = false) where T : UI => CoroutineUtil.StartCoroutine(SwapAsync(typeof(T), id, instant));
+        public static Coroutine Swap<T>(bool instant) where T : UI => CoroutineUtil.StartCoroutine(SwapAsync(typeof(T), null, instant));
+        public static Coroutine Swap(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(SwapAsync(type, id, instant));
+        public static Coroutine Swap(System.Type type, bool instant) => CoroutineUtil.StartCoroutine(SwapAsync(type, null, instant));
 
         private static ActionEvent onAnyOpened = new ActionEvent();
         private static ActionEvent onAnyClosed = new ActionEvent();
@@ -211,75 +211,64 @@ namespace HHG.UI.Runtime
             dataProviders.Remove(key);
         }
 
-        private static Coroutine OpenInternal(System.Type type, object id = null, bool instant = false, object data = null) => CoroutineUtil.StartCoroutine(OpenCoroutine(type, id, instant, data));
-        private static Coroutine CloseInternal(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(CloseCoroutine(type, id, instant));
-        private static Coroutine FocusInternal(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(FocusCoroutine(type, id, instant));
-        private static Coroutine UnfocusInternal(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(UnfocusCoroutine(type, id, instant));
-        private static Coroutine GoToInternal(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(GoToCoroutine(type, id, instant));
-        private static Coroutine PushInternal(System.Type type, object id = null, bool instant = false, object data = null) => CoroutineUtil.StartCoroutine(PushCoroutine(type, id, instant, data));
-        private static Coroutine PopInternal(bool instant = false) => CoroutineUtil.StartCoroutine(PopCoroutine(instant));
-        private static Coroutine PopInternal(int amount, bool instant = false) => CoroutineUtil.StartCoroutine(PopCoroutine(amount, instant));
-        private static Coroutine ClearInternal(bool instant = false) => CoroutineUtil.StartCoroutine(ClearCoroutine(instant));
-        private static Coroutine SwapInternal(System.Type type, object id = null, bool instant = false) => CoroutineUtil.StartCoroutine(SwapCoroutine(type, id, instant));
-
-        private static IEnumerator OpenCoroutine(System.Type type, object id = null, bool instant = false, object data = null)
+        private static IEnumerator OpenAsync(System.Type type, object id = null, bool instant = false, object data = null)
         {
             SubjectId key = new SubjectId(type, id);
 
             if (map.TryGetValue(key, out UI ui))
             {
                 RefreshInternal(key, data);
-                yield return ui.OpenInternal(instant);
+                yield return ui.OpenAsync(instant);
             }
         }
 
-        private static IEnumerator CloseCoroutine(System.Type type, object id = null, bool instant = false)
+        private static IEnumerator CloseAsync(System.Type type, object id = null, bool instant = false)
         {
             SubjectId key = new SubjectId(type, id);
 
             if (map.TryGetValue(key, out UI ui))
             {
-                yield return ui.CloseInternal(instant);
+                yield return ui.CloseAsync(instant);
             }
         }
 
-        private static IEnumerator FocusCoroutine(System.Type type, object id = null, bool instant = false)
+        private static IEnumerator FocusAsync(System.Type type, object id = null, bool instant = false)
         {
             SubjectId key = new SubjectId(type, id);
 
             if (map.TryGetValue(key, out UI ui))
             {
-                yield return ui.FocusInternal(instant);
+                yield return ui.FocusAsync(instant);
             }
         }
 
-        private static IEnumerator UnfocusCoroutine(System.Type type, object id = null, bool instant = false)
+        private static IEnumerator UnfocusAsync(System.Type type, object id = null, bool instant = false)
         {
             SubjectId key = new SubjectId(type, id);
 
             if (map.TryGetValue(key, out UI ui))
             {
-                yield return ui.UnfocusInternal(instant);
+                yield return ui.UnfocusAsync(instant);
             }
         }
 
         // TODO: Need to not focus when popping deeper
-        private static IEnumerator GoToCoroutine(System.Type type, object id = null, bool instant = false)
+        private static IEnumerator GoToAsync(System.Type type, object id = null, bool instant = false)
         {
             SubjectId key = new SubjectId(type, id);
 
             while (opened.Count > 0 && opened.Peek().SubjectId != key)
             {
-                yield return PopInternal(instant);
+                yield return PopAsync(instant);
             }
 
             if (opened.Count == 0)
             {
-                yield return PushInternal(type, id, instant);
+                yield return PushAsync(type, id, instant);
             }
         }
 
-        private static IEnumerator PushCoroutine(System.Type type, object id = null, bool instant = false, object data = null)
+        private static IEnumerator PushAsync(System.Type type, object id = null, bool instant = false, object data = null)
         {
             SubjectId key = new SubjectId(type, id);
 
@@ -287,35 +276,35 @@ namespace HHG.UI.Runtime
             {
                 if (opened.Count > 0)
                 {
-                    yield return opened.Peek().UnfocusInternal(instant);
+                    yield return opened.Peek().UnfocusAsync(instant);
                 }
 
                 RefreshInternal(key, data);
 
                 opened.Push(ui);
 
-                yield return ui.OpenInternal(instant);
-                yield return ui.FocusInternal(instant);
+                yield return ui.OpenAsync(instant);
+                yield return ui.FocusAsync(instant);
             }
         }
 
-        private static IEnumerator PopCoroutine(bool instant = false)
+        private static IEnumerator PopAsync(bool instant = false)
         {
             if (opened.Count > 0)
             {
                 UI popped = opened.Pop();
 
-                yield return popped.UnfocusInternal(instant);
-                yield return popped.CloseInternal(instant);
+                yield return popped.UnfocusAsync(instant);
+                yield return popped.CloseAsync(instant);
 
                 if (opened.Count > 0)
                 {
-                    yield return opened.Peek().FocusInternal(instant);
+                    yield return opened.Peek().FocusAsync(instant);
                 }
             }
         }
 
-        private static IEnumerator PopCoroutine(int amount, bool instant = false)
+        private static IEnumerator PopAsync(int amount, bool instant = false)
         {
             if (amount > opened.Count)
             {
@@ -323,22 +312,22 @@ namespace HHG.UI.Runtime
             }
             for (int i = 0; i < amount; i++)
             {
-                yield return PopInternal(instant);
+                yield return PopAsync(instant);
             }
         }
 
-        private static IEnumerator ClearCoroutine(bool instant = false)
+        private static IEnumerator ClearAsync(bool instant = false)
         {
             while (opened.Count > 0)
             {
-                yield return PopInternal(instant);
+                yield return PopAsync(instant);
             }
         }
 
-        private static IEnumerator SwapCoroutine(System.Type type, object id = null, bool instant = false)
+        private static IEnumerator SwapAsync(System.Type type, object id = null, bool instant = false)
         {
-            yield return PopInternal(instant);
-            yield return PushInternal(type, id, instant);
+            yield return PopAsync(instant);
+            yield return PushAsync(type, id, instant);
         }
     }
 }
