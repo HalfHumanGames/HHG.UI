@@ -62,10 +62,10 @@ namespace HHG.UI.Runtime
         public RectTransform RectTransform => rectTransform;
         public Animator Animator => animator;
         public CanvasGroup CanvasGroup => canvasGroup;
-        public ActionEvent OnOpened => onOpened;
-        public ActionEvent OnClosed => onClosed;
-        public ActionEvent OnFocused => onFocused;
-        public ActionEvent OnUnfocused => onUnfocused;
+        public ActionEvent<UI> OnOpened => onOpened;
+        public ActionEvent<UI> OnClosed => onClosed;
+        public ActionEvent<UI> OnFocused => onFocused;
+        public ActionEvent<UI> OnUnfocused => onUnfocused;
 
         [SerializeField] protected bool center;
         [SerializeField] protected string customId;
@@ -76,10 +76,10 @@ namespace HHG.UI.Runtime
         [SerializeField] protected FocusState focus = FocusState.Focused;
         [SerializeField] protected bool backEnabled = true;
 
-        [SerializeField, FormerlySerializedAs("OnOpened")] private ActionEvent onOpened = new ActionEvent();
-        [SerializeField, FormerlySerializedAs("OnClosed")] private ActionEvent onClosed = new ActionEvent();
-        [SerializeField, FormerlySerializedAs("OnFocused")] private ActionEvent onFocused = new ActionEvent();
-        [SerializeField, FormerlySerializedAs("OnUnfocused")] private ActionEvent onUnfocused = new ActionEvent();
+        [SerializeField, FormerlySerializedAs("OnOpened")] private ActionEvent<UI> onOpened = new ActionEvent<UI>();
+        [SerializeField, FormerlySerializedAs("OnClosed")] private ActionEvent<UI> onClosed = new ActionEvent<UI>();
+        [SerializeField, FormerlySerializedAs("OnFocused")] private ActionEvent<UI> onFocused = new ActionEvent<UI>();
+        [SerializeField, FormerlySerializedAs("OnUnfocused")] private ActionEvent<UI> onUnfocused = new ActionEvent<UI>();
 
         private UI root;
         private UI parent;
@@ -260,7 +260,7 @@ namespace HHG.UI.Runtime
         }
 
         protected virtual void OnWillUnfocus()
-        {
+        {            
             canvasGroup.interactable = false;
 
             if (options.HasFlag(Options.RememberSection))
