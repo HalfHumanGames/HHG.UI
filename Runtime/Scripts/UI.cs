@@ -256,17 +256,7 @@ namespace HHG.UI.Runtime
 
         protected virtual void OnWillFocus()
         {
-            if (EventSystem.current.TryGetCurrentSelection(out Selectable selection) && this.IsChild(selection))
-            {
-                // ReselectSelectedGameObject deselects then reselects
-                // the current selected game object, which forces
-                // the select event to trigger. We do this since it's
-                // possible that it was selected previously, but exited 
-                // the select callback due to a IsInteractable check.
-                // However, it would still have been seleclted, so calling
-                // Selectable.Select would have done nothing.
-                EventSystem.current.ReselectSelectedGameObject();
-            }
+
         }
 
         protected virtual void OnWillUnfocus()
@@ -331,9 +321,18 @@ namespace HHG.UI.Runtime
         {
             canvasGroup.interactable = true;
 
-            Selectable selection = EventSystem.current.GetCurrentSelectable();
-
-            if (!selection || !this.IsChild(selection))
+            if (EventSystem.current.TryGetCurrentSelection(out Selectable selection) && this.IsChild(selection))
+            {
+                // ReselectSelectedGameObject deselects then reselects
+                // the current selected game object, which forces
+                // the select event to trigger. We do this since it's
+                // possible that it was selected previously, but exited 
+                // the select callback due to a IsInteractable check.
+                // However, it would still have been selected, so calling
+                // Selectable.Select would have done nothing.
+                EventSystem.current.ReselectSelectedGameObject();
+            }
+            else
             {
                 if (options.HasFlag(Options.RememberSection) && selectionToRemember)
                 {
