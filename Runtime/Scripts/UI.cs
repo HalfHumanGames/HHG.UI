@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Pool;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -411,7 +410,7 @@ namespace HHG.UI.Runtime
 
         private IEnumerator OpenChildrenAsync(bool instant)
         {
-            List<IEnumerator> watch = ListPool<IEnumerator>.Get();
+            List<IEnumerator> watch = Pool.GetList<IEnumerator>();
 
             for (int i = 0; i < children.Count; i++)
             {
@@ -423,7 +422,7 @@ namespace HHG.UI.Runtime
 
             yield return CoroutineUtil.YieldAllParallel(watch);
 
-            ListPool<IEnumerator>.Release(watch);
+            Pool.ReleaseList(watch);
         }
 
         private IEnumerator CloseInternalAsync(bool instant = false)
@@ -446,7 +445,7 @@ namespace HHG.UI.Runtime
 
         private IEnumerator CloseChildrenAsync(bool instant)
         {
-            List<IEnumerator> watch = ListPool<IEnumerator>.Get();
+            List<IEnumerator> watch = Pool.GetList<IEnumerator>();
 
             for (int i = 0; i < children.Count; i++)
             {
@@ -463,7 +462,7 @@ namespace HHG.UI.Runtime
 
             yield return CoroutineUtil.YieldAllParallel(watch);
 
-            ListPool<IEnumerator>.Release(watch);
+            Pool.ReleaseList(watch);
         }
 
         private IEnumerator CloseSelfAsync(bool instant)
@@ -535,7 +534,7 @@ namespace HHG.UI.Runtime
 
         private IEnumerator FocusChildrenAsync(bool instant)
         {
-            List<IEnumerator> watch = ListPool<IEnumerator>.Get();
+            List<IEnumerator> watch = Pool.GetList<IEnumerator>();
 
             for (int i = 0; i < children.Count; i++)
             {
@@ -547,7 +546,7 @@ namespace HHG.UI.Runtime
 
             yield return CoroutineUtil.YieldAllParallel(watch);
 
-            ListPool<IEnumerator>.Release(watch);
+            Pool.ReleaseList(watch);
         }
 
         private IEnumerator UnfocusInternalAsync(bool instant = false)
@@ -593,7 +592,7 @@ namespace HHG.UI.Runtime
 
         private IEnumerator UnfocusChildrenAsync(bool instant)
         {
-            List<IEnumerator> watch = ListPool<IEnumerator>.Get();
+            List<IEnumerator> watch = Pool.GetList<IEnumerator>();
 
             for (int i = 0; i < children.Count; i++)
             {
@@ -610,7 +609,7 @@ namespace HHG.UI.Runtime
 
             yield return CoroutineUtil.YieldAllParallel(watch);
 
-            ListPool<IEnumerator>.Release(watch);
+            Pool.ReleaseList(watch);
         }
 
         private void ResetAllTriggers()

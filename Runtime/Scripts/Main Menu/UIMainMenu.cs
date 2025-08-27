@@ -2,7 +2,6 @@ using HHG.Common.Runtime;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Pool;
 using UnityEngine.UI;
 
 namespace HHG.UI.Runtime
@@ -55,7 +54,7 @@ namespace HHG.UI.Runtime
             continueButton.gameObject.SetActive(exists);
             saveSlotsButton.gameObject.SetActive(exists);
 
-            using (ListPool<Button>.Get(out List<Button> buttons))
+            using (Pool.GetList(out List<Button> buttons))
             {
                 GetComponentsInChildren(true, buttons);
 
