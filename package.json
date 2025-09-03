@@ -1,6 +1,6 @@
 {
   "name": "com.halfhumangames.ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "displayName": "HHG - UI",
   "description": "UI system for Unity",
   "unity": "2020.3",
@@ -20,7 +20,7 @@
     "url": "https://github.com/HalfHumanGames"
   },
   "dependencies": {
-    "com.halfhumangames.common": "1.0.0",
+    "com.halfhumangames.common": "1.0.1",
     "com.unity.textmeshpro": "3.0.8"
   }
 }
