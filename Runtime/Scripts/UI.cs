@@ -420,7 +420,7 @@ namespace HHG.UI.Runtime
                 }
             }
 
-            yield return CoroutineUtil.WaitForAll(handle);
+            yield return handle;
         }
 
         private IEnumerator CloseInternalAsync(bool instant = false)
@@ -458,7 +458,7 @@ namespace HHG.UI.Runtime
                 }
             }
 
-            yield return CoroutineUtil.WaitForAll(handle);
+            yield return handle;
         }
 
         private IEnumerator CloseSelfAsync(bool instant)
@@ -540,7 +540,7 @@ namespace HHG.UI.Runtime
                 }
             }
 
-            yield return CoroutineUtil.WaitForAll(handle);
+            yield return handle;
         }
 
         private IEnumerator UnfocusInternalAsync(bool instant = false)
@@ -601,7 +601,7 @@ namespace HHG.UI.Runtime
                 }
             }
 
-            yield return CoroutineUtil.WaitForAll(handle);
+            yield return handle;
         }
 
         private void ResetAllTriggers()
