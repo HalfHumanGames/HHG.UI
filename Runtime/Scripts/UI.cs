@@ -410,19 +410,17 @@ namespace HHG.UI.Runtime
 
         private IEnumerator OpenChildrenAsync(bool instant)
         {
-            List<Coroutine> watch = Pool.GetList<Coroutine>();
+            using CoroutineHandle handle = CoroutineHandle.GetFromPool();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].wasOpen)
                 {
-                    watch.Add(StartCoroutine(children[i].OpenAsync(instant)));
+                    handle.StartCoroutine(this, children[i].OpenAsync(instant));
                 }
             }
 
-            yield return CoroutineUtil.WaitForAll(watch);
-
-            Pool.ReleaseList(watch);
+            yield return CoroutineUtil.WaitForAll(handle);
         }
 
         private IEnumerator CloseInternalAsync(bool instant = false)
@@ -445,14 +443,14 @@ namespace HHG.UI.Runtime
 
         private IEnumerator CloseChildrenAsync(bool instant)
         {
-            List<Coroutine> watch = Pool.GetList<Coroutine>();
+            using CoroutineHandle handle = CoroutineHandle.GetFromPool();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].IsOpen || children[i].IsOpening)
                 {
                     children[i].wasOpen = true;
-                    watch.Add(StartCoroutine(children[i].CloseAsync(instant)));
+                    handle.StartCoroutine(this, children[i].CloseAsync(instant));
                 }
                 else
                 {
@@ -460,9 +458,7 @@ namespace HHG.UI.Runtime
                 }
             }
 
-            yield return CoroutineUtil.WaitForAll(watch);
-
-            Pool.ReleaseList(watch);
+            yield return CoroutineUtil.WaitForAll(handle);
         }
 
         private IEnumerator CloseSelfAsync(bool instant)
@@ -534,19 +530,17 @@ namespace HHG.UI.Runtime
 
         private IEnumerator FocusChildrenAsync(bool instant)
         {
-            List<Coroutine> watch = Pool.GetList<Coroutine>();
+            using CoroutineHandle handle = CoroutineHandle.GetFromPool();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].wasFocused)
                 {
-                    watch.Add(StartCoroutine(children[i].FocusAsync(instant)));
+                    handle.StartCoroutine(this, children[i].FocusAsync(instant));
                 }
             }
 
-            yield return CoroutineUtil.WaitForAll(watch);
-
-            Pool.ReleaseList(watch);
+            yield return CoroutineUtil.WaitForAll(handle);
         }
 
         private IEnumerator UnfocusInternalAsync(bool instant = false)
@@ -592,14 +586,14 @@ namespace HHG.UI.Runtime
 
         private IEnumerator UnfocusChildrenAsync(bool instant)
         {
-            List<Coroutine> watch = Pool.GetList<Coroutine>();
+            using CoroutineHandle handle = CoroutineHandle.GetFromPool();
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].IsFocused || children[i].IsFocusing)
                 {
                     children[i].wasFocused = true;
-                    watch.Add(StartCoroutine(children[i].UnfocusAsync(instant)));
+                    handle.StartCoroutine(this, children[i].UnfocusAsync(instant));
                 }
                 else
                 {
@@ -607,9 +601,7 @@ namespace HHG.UI.Runtime
                 }
             }
 
-            yield return CoroutineUtil.WaitForAll(watch);
-
-            Pool.ReleaseList(watch);
+            yield return CoroutineUtil.WaitForAll(handle);
         }
 
         private void ResetAllTriggers()
