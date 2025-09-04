@@ -410,13 +410,13 @@ namespace HHG.UI.Runtime
 
         private IEnumerator OpenChildrenAsync(bool instant)
         {
-            using CoroutineHandle handle = CoroutineHandle.GetFromPool();
+            using CoroutineHandle handle = CoroutineHandle.GetFromPool(this);
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].wasOpen)
                 {
-                    handle.StartCoroutine(this, children[i].OpenAsync(instant));
+                    handle.StartCoroutine(children[i].OpenAsync(instant));
                 }
             }
 
@@ -443,14 +443,14 @@ namespace HHG.UI.Runtime
 
         private IEnumerator CloseChildrenAsync(bool instant)
         {
-            using CoroutineHandle handle = CoroutineHandle.GetFromPool();
+            using CoroutineHandle handle = CoroutineHandle.GetFromPool(this);
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].IsOpen || children[i].IsOpening)
                 {
                     children[i].wasOpen = true;
-                    handle.StartCoroutine(this, children[i].CloseAsync(instant));
+                    handle.StartCoroutine(children[i].CloseAsync(instant));
                 }
                 else
                 {
@@ -530,13 +530,13 @@ namespace HHG.UI.Runtime
 
         private IEnumerator FocusChildrenAsync(bool instant)
         {
-            using CoroutineHandle handle = CoroutineHandle.GetFromPool();
+            using CoroutineHandle handle = CoroutineHandle.GetFromPool(this);
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].wasFocused)
                 {
-                    handle.StartCoroutine(this, children[i].FocusAsync(instant));
+                    handle.StartCoroutine(children[i].FocusAsync(instant));
                 }
             }
 
@@ -586,14 +586,14 @@ namespace HHG.UI.Runtime
 
         private IEnumerator UnfocusChildrenAsync(bool instant)
         {
-            using CoroutineHandle handle = CoroutineHandle.GetFromPool();
+            using CoroutineHandle handle = CoroutineHandle.GetFromPool(this);
 
             for (int i = 0; i < children.Count; i++)
             {
                 if (children[i].IsFocused || children[i].IsFocusing)
                 {
                     children[i].wasFocused = true;
-                    handle.StartCoroutine(this, children[i].UnfocusAsync(instant));
+                    handle.StartCoroutine(children[i].UnfocusAsync(instant));
                 }
                 else
                 {

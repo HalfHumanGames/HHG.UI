@@ -125,10 +125,11 @@ namespace HHG.UI.Runtime
 
         private static bool CanGoBack(object obj, InputActionChange change)
         {
-            return change == InputActionChange.ActionPerformed &&
-                obj is InputAction action &&
-                EventSystem.current.currentInputModule is InputSystemUIInputModule module &&
-                action == module.cancel.action;
+            return EventSystem.current != null &&
+                   change == InputActionChange.ActionPerformed &&
+                   obj is InputAction action &&
+                   EventSystem.current.currentInputModule is InputSystemUIInputModule module &&
+                   action == module.cancel.action;
         }
 
         private static void Back()
