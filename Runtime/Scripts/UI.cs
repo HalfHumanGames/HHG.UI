@@ -100,28 +100,34 @@ namespace HHG.UI.Runtime
         private bool wasUnfocused { get => wasOpen && previousFocus == FocusState.Unfocused; set => previousFocus = value ? FocusState.Unfocused : FocusState.Focused; }
 
         [ContextMenu("Open")]
-        public Coroutine Open() => StartCoroutine(OpenAsync(false));
-        public Coroutine Open(bool instant) => StartCoroutine(OpenAsync(instant));
+        public Coroutine Open() => StartCoroutineHelper(OpenAsync(false));
+        public Coroutine Open(bool instant) => StartCoroutineHelper(OpenAsync(instant));
 
         [ContextMenu("Close")]
-        public Coroutine Close() => StartCoroutine(CloseAsync(false));
-        public Coroutine Close(bool instant) => StartCoroutine(CloseAsync(instant));
+        public Coroutine Close() => StartCoroutineHelper(CloseAsync(false));
+        public Coroutine Close(bool instant) => StartCoroutineHelper(CloseAsync(instant));
 
         [ContextMenu("Toggle")]
-        public Coroutine Toggle() => StartCoroutine(ToggleAsync(false));
-        public Coroutine Toggle(bool instant) => StartCoroutine(ToggleAsync(instant));
+        public Coroutine Toggle() => StartCoroutineHelper(ToggleAsync(false));
+        public Coroutine Toggle(bool instant) => StartCoroutineHelper(ToggleAsync(instant));
 
         [ContextMenu("Focus")]
-        public Coroutine Focus() => StartCoroutine(FocusAsync(false));
-        public Coroutine Focus(bool instant) => StartCoroutine(FocusAsync(instant));
+        public Coroutine Focus() => StartCoroutineHelper(FocusAsync(false));
+        public Coroutine Focus(bool instant) => StartCoroutineHelper(FocusAsync(instant));
 
         [ContextMenu("Unfocus")]
-        public Coroutine Unfocus() => StartCoroutine(UnfocusAsync(false));
-        public Coroutine Unfocus(bool instant) => StartCoroutine(UnfocusAsync(instant));
+        public Coroutine Unfocus() => StartCoroutineHelper(UnfocusAsync(false));
+        public Coroutine Unfocus(bool instant) => StartCoroutineHelper(UnfocusAsync(instant));
 
         [ContextMenu("Push")]
         public Coroutine Push() => Push(GetType(), Id, false);
         public Coroutine Push(bool instant) => Push(GetType(), Id, instant);
+
+        private Coroutine StartCoroutineHelper(IEnumerator routine)
+        {
+            if (!gameObject.activeSelf) gameObject.SetActive(true);
+            return StartCoroutine(routine);
+        }
 
         public void MarkLayoutForRebuild(System.Action done = null) => rectTransform.MarkLayoutForRebuild(done);
 
@@ -130,11 +136,11 @@ namespace HHG.UI.Runtime
         public void DisableBack() => backEnabled = false;
         public void ResetSelection() => selectionToRemember = null;
 
-        private IEnumerator OpenAsync(bool instant = false) => TransitionAsync(OpenInternalAsync(instant));
-        private IEnumerator CloseAsync(bool instant = false) => TransitionAsync(CloseInternalAsync(instant));
+        private IEnumerator OpenAsync(bool instant = false) => WaitForAnimationToFinishAsync(OpenInternalAsync(instant));
+        private IEnumerator CloseAsync(bool instant = false) => WaitForAnimationToFinishAsync(CloseInternalAsync(instant));
         private IEnumerator ToggleAsync(bool instant = false) => IsOpen ? CloseAsync(instant) : OpenAsync(instant);
-        private IEnumerator FocusAsync(bool instant = false) => TransitionAsync(FocusInternalAsync(instant));
-        private IEnumerator UnfocusAsync(bool instant = false) => TransitionAsync(UnfocusInternalAsync(instant));
+        private IEnumerator FocusAsync(bool instant = false) => WaitForAnimationToFinishAsync(FocusInternalAsync(instant));
+        private IEnumerator UnfocusAsync(bool instant = false) => WaitForAnimationToFinishAsync(UnfocusInternalAsync(instant));
 
         protected virtual void Awake()
         {
@@ -160,6 +166,7 @@ namespace HHG.UI.Runtime
                 animator = GetComponent<Animator>();
             }
 
+            animator.keepAnimatorStateOnDisable = true;
             animator.updateMode = AnimatorUpdateMode.UnscaledTime;
 
             if (animator.runtimeAnimatorController is AnimatorOverrideController controller)
@@ -259,7 +266,7 @@ namespace HHG.UI.Runtime
         }
 
         protected virtual void OnWillUnfocus()
-        {            
+        {
             canvasGroup.interactable = false;
 
             if (options.HasFlag(Options.RememberSection))
@@ -349,11 +356,6 @@ namespace HHG.UI.Runtime
 
         }
 
-        private IEnumerator TransitionAsync(IEnumerator coroutine)
-        {
-            return WaitForAnimationToFinishAsync(coroutine);
-        }
-
         private IEnumerator WaitForAnimationToFinishAsync(IEnumerator coroutine)
         {
             // Track hash in queue to ensure animations execute
@@ -371,6 +373,10 @@ namespace HHG.UI.Runtime
 
             transitions.Dequeue();
             canvasGroup.interactable = IsOpen && IsFocused;
+
+            // Only deactivate if no queued transitions and closed
+            bool deactivate = transitions.Count == 0 && IsClosed;
+            if (deactivate) gameObject.SetActive(false);
         }
 
         private IEnumerator OpenInternalAsync(bool instant = false)
