@@ -383,6 +383,7 @@ namespace HHG.UI.Runtime
         {
             if (!IsOpen)
             {
+                EnsureActive();
                 MarkLayoutForRebuild();
                 OnWillOpen();
 
@@ -433,6 +434,7 @@ namespace HHG.UI.Runtime
         {
             if (!IsClosed)
             {
+                EnsureActive();
                 OnWillClose();
 
                 state = OpenState.Closing;
@@ -503,6 +505,7 @@ namespace HHG.UI.Runtime
         {
             if (!IsClosed && !IsFocused)
             {
+                EnsureActive();
                 OnWillFocus();
 
                 focus = FocusState.Focusing;
@@ -553,6 +556,7 @@ namespace HHG.UI.Runtime
         {
             if (!IsClosed && !IsUnfocused)
             {
+                EnsureActive();
                 OnWillUnfocus();
 
                 focus = FocusState.Unfocusing;
@@ -608,6 +612,14 @@ namespace HHG.UI.Runtime
             }
 
             yield return handle;
+        }
+
+        private void EnsureActive()
+        {
+            if (!gameObject.activeInHierarchy)
+            {
+                gameObject.SetActive(true);
+            }
         }
 
         private void ResetAllTriggers()
