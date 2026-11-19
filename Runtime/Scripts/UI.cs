@@ -98,26 +98,29 @@ namespace HHG.UI.Runtime
         private bool wasClosed { get => previousState == OpenState.Closed; set => previousState = value ? OpenState.Closed : OpenState.Open; }
         private bool wasFocused { get => wasOpen && previousFocus == FocusState.Focused; set => previousFocus = value ? FocusState.Focused : FocusState.Unfocused; }
         private bool wasUnfocused { get => wasOpen && previousFocus == FocusState.Unfocused; set => previousFocus = value ? FocusState.Unfocused : FocusState.Focused; }
+        private bool isIdle => transitions.Count == 0;
 
+        // Requests that wouldn't change anything are skipped, since queuing
+        // them would delay any transitions requested after them
         [ContextMenu("Open")]
-        public Coroutine Open() => StartCoroutineHelper(OpenAsync(false));
-        public Coroutine Open(bool instant) => StartCoroutineHelper(OpenAsync(instant));
+        public Coroutine Open() => Open(false);
+        public Coroutine Open(bool instant) => isIdle && IsOpen ? null : StartCoroutineHelper(OpenAsync(instant));
 
         [ContextMenu("Close")]
-        public Coroutine Close() => StartCoroutineHelper(CloseAsync(false));
-        public Coroutine Close(bool instant) => StartCoroutineHelper(CloseAsync(instant));
+        public Coroutine Close() => Close(false);
+        public Coroutine Close(bool instant) => isIdle && IsClosed ? null : StartCoroutineHelper(CloseAsync(instant));
 
         [ContextMenu("Toggle")]
         public Coroutine Toggle() => StartCoroutineHelper(ToggleAsync(false));
         public Coroutine Toggle(bool instant) => StartCoroutineHelper(ToggleAsync(instant));
 
         [ContextMenu("Focus")]
-        public Coroutine Focus() => StartCoroutineHelper(FocusAsync(false));
-        public Coroutine Focus(bool instant) => StartCoroutineHelper(FocusAsync(instant));
+        public Coroutine Focus() => Focus(false);
+        public Coroutine Focus(bool instant) => isIdle && (IsClosed || IsFocused) ? null : StartCoroutineHelper(FocusAsync(instant));
 
         [ContextMenu("Unfocus")]
-        public Coroutine Unfocus() => StartCoroutineHelper(UnfocusAsync(false));
-        public Coroutine Unfocus(bool instant) => StartCoroutineHelper(UnfocusAsync(instant));
+        public Coroutine Unfocus() => Unfocus(false);
+        public Coroutine Unfocus(bool instant) => isIdle && (IsClosed || IsUnfocused) ? null : StartCoroutineHelper(UnfocusAsync(instant));
 
         [ContextMenu("Push")]
         public Coroutine Push() => Push(GetType(), Id, false);
@@ -369,7 +372,12 @@ namespace HHG.UI.Runtime
                 yield return new WaitForEndOfFrame();
             }
 
-            yield return coroutine;
+            // Step through inline instead of yielding to Unity, which resumes
+            // this a frame later even when the transition finishes immediately
+            while (coroutine.MoveNext())
+            {
+                yield return coroutine.Current;
+            }
 
             transitions.Dequeue();
             canvasGroup.interactable = IsOpen && IsFocused;
