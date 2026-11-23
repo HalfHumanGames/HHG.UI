@@ -126,6 +126,19 @@ namespace HHG.UI.Runtime
         public Coroutine Push() => Push(GetType(), Id, false);
         public Coroutine Push(bool instant) => Push(GetType(), Id, instant);
 
+        // Transitions run in order, so the returned coroutine completes after both
+        public Coroutine SetVisible(bool visible, bool instant = false)
+        {
+            if (visible)
+            {
+                Open(instant);
+                return Focus(instant);
+            }
+
+            Unfocus(instant);
+            return Close(instant);
+        }
+
         private Coroutine StartCoroutineHelper(IEnumerator routine)
         {
             if (!gameObject.activeSelf) gameObject.SetActive(true);
